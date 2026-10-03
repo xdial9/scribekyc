@@ -20,19 +20,67 @@ HTML = """
 <html>
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scribe — Local Repo Assistant</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>✍️</text></svg>" type="image/svg+xml">
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html, body {
+        height: 100%;
+      }
       body {
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        max-width: 1200px;
-        margin: 40px auto;
-        padding: 0 20px;
         background: linear-gradient(135deg, #0b1220 0%, #1a2a4e 100%);
         color: #e5e7eb;
+        display: flex;
+        flex-direction: column;
+      }
+      .topbar {
+        background: rgba(17, 24, 39, 0.95);
+        border-bottom: 2px solid #2563eb;
+        padding: 16px 20px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+      .topbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.4em;
+        font-weight: bold;
+        background: linear-gradient(135deg, #60a5fa, #93c5fd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        letter-spacing: 1px;
+      }
+      .topbar-brand-icon {
+        font-size: 1.3em;
+      }
+      .topbar-spacer {
+        flex: 1;
+      }
+      .topbar-tagline {
+        font-size: 0.8em;
+        color: #a0aec0;
+      }
+      .content {
+        flex: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+        width: 100%;
+        overflow-y: auto;
       }
       .header {
         text-align: center;
-        margin-bottom: 32px;
+        margin-bottom: 24px;
       }
       .header h1 {
         font-size: 2.5em;
@@ -55,6 +103,11 @@ HTML = """
         padding: 18px;
         margin-bottom: 18px;
         box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      }
+      .panel h2 {
+        font-size: 1.1em;
+        margin-bottom: 12px;
+        color: #60a5fa;
       }
       textarea, input, button, select {
         width: 100%;
@@ -85,6 +138,7 @@ HTML = """
         padding: 14px;
         overflow: auto;
         font-size: 0.85em;
+        max-height: 400px;
       }
       .layout {
         display: grid;
@@ -138,80 +192,93 @@ HTML = """
         .layout { grid-template-columns: 1fr; }
         .form-row { flex-direction: column; }
         .header h1 { font-size: 1.8em; }
+        .topbar { flex-direction: column; align-items: flex-start; gap: 8px; }
+        .topbar-spacer { display: none; }
       }
     </style>
   </head>
   <body>
-    <div class="header">
-      <h1>✍️ SCRIBE</h1>
-      <p>Local repo-grounded assistant for project exploration and synthesis</p>
+    <div class="topbar">
+      <div class="topbar-brand">
+        <span class="topbar-brand-icon">✍️</span>
+        <span>SCRIBE</span>
+      </div>
+      <div class="topbar-spacer"></div>
+      <div class="topbar-tagline">Ask your notes anything</div>
     </div>
 
-    <div class="panel">
-      <form method="post" action="/ask">
-        <div class="form-row">
-          <div>
-            <label for="session">Session</label>
-            <select name="session" id="session">
-              {% for s in sessions %}
-                <option value="{{ s }}" {% if s == active_session %}selected{% endif %}>{{ s }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div>
-            <label for="folder">Folder</label>
-            <input name="folder" value="{{ active_folder }}" placeholder="." />
-          </div>
-        </div>
-        <label for="question">Ask Scribe</label>
-        <textarea name="question" rows="4" placeholder="What would you like to know about this project?"></textarea>
-        <button type="submit">✨ Get Scribe Answer</button>
-      </form>
-    </div>
+    <div class="content">
+      <div class="header">
+        <h1>✍️ SCRIBE</h1>
+        <p>Local repo-grounded assistant for project exploration and synthesis</p>
+      </div>
 
-    <div class="layout">
-      <aside class="panel">
-        <h2>📂 Project Tree</h2>
-        <ul class="tree">
-          {% for item in folder_tree %}
-            <li>
-              {% if item.type == 'dir' %}
-                <strong>{{ item.name }}/</strong>
-                {% if item.children %}
-                  <ul class="tree">
-                    {% for child in item.children %}
-                      <li>
-                        {% if child.type == 'dir' %}
-                          <strong>{{ child.name }}/</strong>
-                        {% else %}
-                          <a href="/file/{{ child.path }}">{{ child.name }}</a>
-                        {% endif %}
-                      </li>
-                    {% endfor %}
-                  </ul>
+      <div class="panel">
+        <form method="post" action="/ask">
+          <div class="form-row">
+            <div>
+              <label for="session">Session</label>
+              <select name="session" id="session">
+                {% for s in sessions %}
+                  <option value="{{ s }}" {% if s == active_session %}selected{% endif %}>{{ s }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label for="folder">Folder</label>
+              <input name="folder" value="{{ active_folder }}" placeholder="." />
+            </div>
+          </div>
+          <label for="question">Ask Scribe</label>
+          <textarea name="question" rows="4" placeholder="What would you like to know about this project?"></textarea>
+          <button type="submit">✨ Get Scribe Answer</button>
+        </form>
+      </div>
+
+      <div class="layout">
+        <aside class="panel">
+          <h2>📂 Project Tree</h2>
+          <ul class="tree">
+            {% for item in folder_tree %}
+              <li>
+                {% if item.type == 'dir' %}
+                  <strong>{{ item.name }}/</strong>
+                  {% if item.children %}
+                    <ul class="tree">
+                      {% for child in item.children %}
+                        <li>
+                          {% if child.type == 'dir' %}
+                            <strong>{{ child.name }}/</strong>
+                          {% else %}
+                            <a href="/file/{{ child.path }}">{{ child.name }}</a>
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                {% else %}
+                  <a href="/file/{{ item.path }}">{{ item.name }}</a>
                 {% endif %}
-              {% else %}
-                <a href="/file/{{ item.path }}">{{ item.name }}</a>
-              {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-      </aside>
+              </li>
+            {% endfor %}
+          </ul>
+        </aside>
 
-      <div>
-        <div class="panel">
-          <h2>💬 Scribe Response</h2>
-          <pre>{{ answer }}</pre>
-        </div>
+        <div>
+          <div class="panel">
+            <h2>💬 Scribe Response</h2>
+            <pre>{{ answer }}</pre>
+          </div>
 
-        <div class="panel">
-          <h2>📋 Project Overview</h2>
-          <pre>{{ overview }}</pre>
-        </div>
+          <div class="panel">
+            <h2>📋 Project Overview</h2>
+            <pre>{{ overview }}</pre>
+          </div>
 
-        <div class="panel">
-          <h2>🧠 Session Memory</h2>
-          <pre>{{ memory }}</pre>
+          <div class="panel">
+            <h2>🧠 Session Memory</h2>
+            <pre>{{ memory }}</pre>
+          </div>
         </div>
       </div>
     </div>
