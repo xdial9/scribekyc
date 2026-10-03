@@ -1,0 +1,18 @@
+# Public source log template
+
+source_id: <unique source identifier>
+source_name: <name of source>
+source_type: <job_posting | github | blog | sec | vendor_advisory | nvd | exploit_db | paper | press_release>
+url: <public source URL>
+retrieved_at: <YYYY-MM-DD>
+summary: <one paragraph summary>
+
+relevance:
+- entity_id: <optional anonymized entity ID>
+  component_type: <optional>
+  notes: <why this source matters>
+
+observations:
+- observation: <what this source shows>
+  confidence: <low | medium | high>
+
