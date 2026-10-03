@@ -10,8 +10,9 @@ A terminal-first, repo-grounded assistant for working with local project files.
 - Interactive terminal chat mode
 - Persistent memory of recent questions and answers
 - Repo overview command to summarize the project structure
+- Session-aware context across multiple chat turns
 - Optional model-backed answers via Ollama or OpenAI
-- Small Flask web UI for local browser access
+- Small Flask web UI for local browser access with a folder tree and session selector
 
 ## Quick start
 
@@ -41,6 +42,15 @@ python assistant_cli.py compare research/vendors/vendor_jumio.txt research/vendo
 
 ```bash
 python assistant_cli.py list research/vendors
+```
+
+## Session support
+
+You can keep a coherent chat thread with a named session:
+
+```bash
+python assistant_cli.py ask "what is the repo about?" --session research
+python assistant_cli.py ask "compare the vendor files" --session research
 ```
 
 ## Index refresh
