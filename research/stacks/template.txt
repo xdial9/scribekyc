@@ -1,0 +1,22 @@
+# Stack template
+
+entity_id: <anonymized entity ID>
+stack_snapshot_date: <YYYY-MM-DD>
+stack_summary: <public overview of observed stack>
+
+components:
+- component_type: <idv | kyc | biometrics | risk_engine | auth | document_verification | database | api_gateway | etc.>
+  vendor_or_category: <vendor or generic category>
+  version: <version if public>
+  assessment: <publicly observed | inferred from public materials | pattern-based>
+  evidence:
+    - source_type: <public source type>
+      url: <public URL>
+      notes: <what the evidence supports>
+
+risk_associations:
+- risk_type: <liveness_bypass | document_fraud | session_abuse | synthetic_media | etc.>
+  related_components: <component names>
+  public_notes: <what this risk means for the public stack>
+
+confidence_level: <low | medium | high>
