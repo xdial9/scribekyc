@@ -81,5 +81,5 @@ notes:
 - Printed card defeat is likely if document verification relies on OCR and basic image checks
 - Mask defeat depends on: (1) active vs passive liveness, (2) 3D depth detection, (3) behavioral signals
 - Upload compression can degrade anti-spoofing models if not trained on compressed media
-- Highest risk: Passive-only liveness + basic document checks (Veriff as baseline)
-- Lowest risk: Active challenge + 3D validation + behavioral signals + NFC/chip (Onfido, AU10TIX if features enforced)
+- Highest risk: Passive-only liveness + basic document checks
+- Lowest risk: Active challenge + 3D validation + behavioral signals + NFC/chip
