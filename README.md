@@ -1,210 +1,161 @@
-#!/usr/bin/env python3
+# 🖊️ Scribe
 
-from flask import Flask, render_template_string, request
+**Scribe** is a repo-grounded local AI assistant designed to help you explore, understand, and work with your projects.
 
-from assistant_cli import (
-    answer_question,
-    build_repo_overview,
-    get_folder_tree,
-    session_names,
-    append_session_turn,
-    show_memory,
-    read_text,
-    resolve_repo_path,
-)
+## What is Scribe?
 
-app = Flask(__name__)
+Scribe is:
+- **Local first** — All data stays on your machine
+- **Repo-aware** — Answers questions grounded in your project files
+- **Session-aware** — Remembers context across chat turns
+- **Terminal-first** — Easy to use from the command line
+- **Browser-ready** — Optional web UI for visual exploration
+- **Pluggable** — Works with Ollama or OpenAI if you have models available
 
-HTML = """
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>Local Repo Assistant</title>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        max-width: 1200px;
-        margin: 40px auto;
-        padding: 0 20px;
-        background: #0b1220;
-        color: #e5e7eb;
-      }
-      .panel {
-        background: #111827;
-        border: 1px solid #374151;
-        border-radius: 12px;
-        padding: 18px;
-        margin-bottom: 18px;
-      }
-      textarea, input, button, select {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #475569;
-        background: #020817;
-        color: #f8fafc;
-        margin-top: 8px;
-      }
-      button {
-        background: #2563eb;
-        cursor: pointer;
-        font-weight: bold;
-      }
-      pre {
-        white-space: pre-wrap;
-        background: #020817;
-        border: 1px solid #334155;
-        border-radius: 8px;
-        padding: 14px;
-        overflow: auto;
-      }
-      .layout {
-        display: grid;
-        grid-template-columns: 320px 1.5fr;
-        gap: 18px;
-      }
-      .tree {
-        list-style: none;
-        padding-left: 0;
-        margin: 0;
-      }
-      .tree li {
-        margin: 6px 0;
-      }
-      .tree a {
-        color: #cbd5e1;
-        text-decoration: none;
-      }
-      @media (max-width: 800px) {
-        .layout { grid-template-columns: 1fr; }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="panel">
-      <h1>Local Repo Assistant</h1>
-      <form method="post" action="/ask">
-        <div style="display:flex; gap:12px; align-items:center;">
-          <div style="flex:1;">
-            <label for="session">Session</label>
-            <select name="session" id="session">
-              {% for s in sessions %}
-                <option value="{{ s }}" {% if s == active_session %}selected{% endif %}>{{ s }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div style="flex:1;">
-            <label for="folder">Folder</label>
-            <input name="folder" value="{{ active_folder }}" placeholder="." />
-          </div>
-        </div>
-        <label for="question">Question</label>
-        <textarea name="question" rows="4" placeholder="Ask about the repo, vendor research, docs, or compare files..."></textarea>
-        <button type="submit">Ask</button>
-      </form>
-    </div>
+## Features
 
-    <div class="layout">
-      <aside class="panel">
-        <h2>Folder tree</h2>
-        <ul class="tree">
-          {% for item in folder_tree %}
-            <li>
-              {% if item.type == 'dir' %}
-                <strong>{{ item.name }}/</strong>
-                {% if item.children %}
-                  <ul class="tree">
-                    {% for child in item.children %}
-                      <li>
-                        {% if child.type == 'dir' %}
-                          <strong>{{ child.name }}/</strong>
-                        {% else %}
-                          <a href="/file/{{ child.path }}">{{ child.name }}</a>
-                        {% endif %}
-                      </li>
-                    {% endfor %}
-                  </ul>
-                {% endif %}
-              {% else %}
-                <a href="/file/{{ item.path }}">{{ item.name }}</a>
-              {% endif %}
-            </li>
-          {% endfor %}
-        </ul>
-      </aside>
+- 🔍 Ask repo-grounded questions
+- 🔎 Search by keyword
+- 📝 Summarize files and directories
+- 🔀 Compare files by overlapping terms
+- 💬 Interactive terminal chat mode
+- 🧠 Persistent session memory across turns
+- 📊 Project overview and structure visualization
+- 🌐 Optional web UI with folder tree navigation
+- ⚡ Optional model-backed answers via Ollama or OpenAI
 
-      <div>
-        <div class="panel">
-          <h2>Answer</h2>
-          <pre>{{ answer }}</pre>
-        </div>
+## Quick Start
 
-        <div class="panel">
-          <h2>Overview</h2>
-          <pre>{{ overview }}</pre>
-        </div>
+### Installation
 
-        <div class="panel">
-          <h2>Session memory</h2>
-          <pre>{{ memory }}</pre>
-        </div>
-      </div>
-    </div>
-  </body>
-</html>
-"""
+```bash
+git clone <repo>
+cd scribe
+chmod +x setup.sh
+./setup.sh
+source ~/.zshrc  # or ~/.bashrc / ~/.bash_profile
+```
 
+### Usage
 
-def render_page(answer: str = "Ask a question to see the repo-grounded answer.", active_session: str = "default", active_folder: str = "."):
-    sessions = session_names() or ["default"]
-    if active_session not in sessions:
-        sessions = [active_session] + sessions
-    tree = get_folder_tree(active_folder)
-    return render_template_string(
-        HTML,
-        answer=answer,
-        overview=build_repo_overview(),
-        memory=show_memory(),
-        sessions=sessions,
-        active_session=active_session,
-        active_folder=active_folder,
-        folder_tree=tree,
-    )
+**Terminal mode:**
+```bash
+scribe chat
+```
 
+**One-shot question:**
+```bash
+scribe ask "what is this repo about?"
+```
 
-@app.get("/")
-def index():
-    return render_page()
+**With sessions:**
+```bash
+scribe ask "first question" --session research
+scribe ask "follow-up question" --session research
+```
 
+**Search:**
+```bash
+scribe search "liveness"
+```
 
-@app.get("/file/<path:file_path>")
-def file_view(file_path: str):
-    path = resolve_repo_path(file_path)
-    if path.exists() and path.is_file():
-        content = read_text(path)
-        answer = f"Selected file: {file_path}\n\n" + (content[:5000] if content else "(empty file)")
-    else:
-        answer = f"Selected file: {file_path}\n\nFile not found or not readable."
-    return render_page(answer=answer, active_folder=".")
+**Summarize:**
+```bash
+scribe summary README.md
+scribe summary research/vendors
+```
 
+**Compare files:**
+```bash
+scribe compare file_a.txt file_b.txt
+```
 
-@app.post("/ask")
-def ask():
-    question = request.form.get("question", "").strip()
-    session = request.form.get("session", "default").strip() or "default"
-    folder = request.form.get("folder", ".").strip() or "."
+**List directory:**
+```bash
+scribe list research/
+```
 
-    if not question:
-        answer = "Please enter a question."
-    else:
-        answer = answer_question(question, session_id=session)
-        append_session_turn(session, question, answer)
+**Show memory:**
+```bash
+scribe memory
+```
 
-    return render_page(answer=answer, active_session=session, active_folder=folder)
+**Project overview:**
+```bash
+scribe overview
+```
 
+**List sessions:**
+```bash
+scribe sessions
+```
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+**Rebuild index:**
+```bash
+scribe index
+```
 
+### Web UI
+
+```bash
+python scribe_web.py
+```
+
+Then open http://localhost:5000
+
+## Configuration (Optional)
+
+Create a `.env` file in the Scribe directory for optional model support:
+
+```bash
+# For OpenAI
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-4o-mini
+
+# For Ollama
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=llama3.2
+```
+
+If no model is configured, Scribe falls back to fast, offline repo-grounded search.
+
+## Commands Reference
+
+| Command | Usage | Example |
+|---------|-------|----------|
+| ask | Ask a question | `scribe ask "how does auth work?"` |
+| chat | Interactive chat | `scribe chat` |
+| search | Search repo | `scribe search "authentication"` |
+| summary | Summarize file/dir | `scribe summary src/` |
+| compare | Compare files | `scribe compare a.txt b.txt` |
+| list | List directory | `scribe list research/` |
+| overview | Show project overview | `scribe overview` |
+| memory | Show chat history | `scribe memory` |
+| sessions | List chat sessions | `scribe sessions` |
+| index | Rebuild repo index | `scribe index` |
+| help | Show help | `scribe --help` |
+
+## Architecture
+
+Scribe is built from three components:
+
+1. **scribe_cli.py** — The core CLI and indexing engine
+2. **scribe_web.py** — Optional Flask web UI
+3. **scribe** — Executable wrapper for PATH integration
+
+When you run `scribe ask "question"`, Scribe:
+1. Loads the indexed repo chunks
+2. Ranks them by relevance to your question
+3. Optionally passes top matches to an LLM (Ollama/OpenAI)
+4. Returns an answer grounded in your project files
+5. Saves the turn to your session memory
+
+## Notes
+
+- Scribe works best on projects with good documentation and clear file structure
+- The first run indexes your repo (takes a few seconds)
+- All chat history and sessions are stored locally
+- No data is sent anywhere unless you configure external models
+- Perfect for research corpora, project notes, vendor analysis, and internal knowledge bases
+
+## Happy Scribing! 🎉
