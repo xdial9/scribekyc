@@ -33,6 +33,23 @@ SYNONYM_MAP = {
     "summary": ["summary", "overview", "what is this"],
 }
 
+SCRIBE_VERSION = "1.0.0"
+
+
+def print_startup_banner() -> None:
+    """Print a branded Scribe startup banner."""
+    banner = f"""
+╔══════════════════════════════════════════════════════════╗
+║                                                          ║
+║            ✍️  SCRIBE v{SCRIBE_VERSION}                         ║
+║         Local AI Assistant for Your Notes                ║
+║                                                          ║
+║  Ask questions • Search • Summarize • Compare • Explore  ║
+║                                                          ║
+╚══════════════════════════════════════════════════════════╝
+"""
+    print(banner)
+
 
 def normalize_path(raw: str) -> str:
     raw = raw.strip()
@@ -539,7 +556,7 @@ def interactive_chat() -> None:
     session = "default"
     while True:
         try:
-            user_input = input("scribe> ").strip()
+            user_input = input("Scribe> ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\nGoodbye.")
             break
@@ -662,6 +679,7 @@ def main() -> int:
         return 0
 
     if args.command == "chat":
+        print_startup_banner()
         interactive_chat()
         return 0
 
