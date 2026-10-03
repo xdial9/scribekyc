@@ -19,7 +19,7 @@ INDEX_PATH = ROOT / ".assistant_index.json"
 MEMORY_PATH = ROOT / ".assistant_memory.json"
 
 FILE_EXTENSIONS = {".md", ".txt", ".csv", ".json", ".yaml", ".yml", ".py", ".js", ".ts", ".sh"}
-SKIP_DIRS = {".git", ".venv", "venv", "__pycache__", ".mypy_cache", ".pytest_cache"}
+SKIP_DIRS = {".git", ".venv", "venv", "__pycache__", ".mypy_cache", ".pytest_cache", ".idea", ".DS_Store"}
 
 
 def normalize_path(raw: str) -> str:
@@ -33,7 +33,7 @@ def normalize_path(raw: str) -> str:
 
 def resolve_repo_path(raw: str) -> Path:
     rel = normalize_path(raw)
-    if not rel:
+    if not rel or rel in {".", "/"}:
         return ROOT
     return (ROOT / rel).resolve()
 
@@ -115,12 +115,31 @@ def load_memory() -> Dict[str, Any]:
         try:
             return json.loads(MEMORY_PATH.read_text(encoding="utf-8"))
         except Exception:
-            return {}
-    return {}
+            return {"history": []}
+    return {"history": []}
 
 
 def save_memory(data: Dict[str, Any]) -> None:
     MEMORY_PATH.write_text(json.dumps(data, indent=2), encoding="utf-8")
+
+
+def remember_last_question(question: str) -> None:
+    data = load_memory()
+    history = data.setdefault("history", [])
+    history.append({"question": question, "timestamp": datetime.utcnow().isoformat() + "Z"})
+    data["last_question"] = question
+    save_memory(data)
+
+
+def show_memory() -> str:
+    data = load_memory()
+    history = data.get("history", [])
+    if not history:
+        return "No chat history yet."
+    lines = ["Recent history:"]
+    for item in history[-8:]:
+        lines.append(f"- {item.get('timestamp')} :: {item.get('question')}")
+    return "\n".join(lines)
 
 
 def normalize_query(question: str) -> List[str]:
@@ -137,9 +156,9 @@ def rank_chunks(question: str, chunks: List[Dict[str, Any]], limit: int = 6) -> 
     scored = []
     for chunk in chunks:
         text = (chunk.get("path", "") + " " + chunk.get("text", "")).lower()
-        token_count = sum(1 for token in tokens if token in text)
-        path_score = sum(3 for token in tokens if token in chunk.get("path", "").lower())
-        score = token_count * 2 + path_score
+        token_hits = sum(1 for token in tokens if token in text)
+        path_hits = sum(3 for token in tokens if token in chunk.get("path", "").lower())
+        score = token_hits * 2 + path_hits
         if score > 0:
             scored.append((score, chunk))
 
@@ -164,15 +183,8 @@ def build_context(question: str, chunks: List[Dict[str, Any]], limit: int = 5) -
     return "\n\n".join(parts)
 
 
-def render_answer_context(question: str, chunks: List[Dict[str, Any]], limit: int = 5) -> str:
-    context = build_context(question, chunks, limit=limit)
-    if context.startswith("No relevant repo"):
-        return context
-    return context
-
-
 def offline_answer(question: str, chunks: List[Dict[str, Any]]) -> str:
-    context = render_answer_context(question, chunks, limit=5)
+    context = build_context(question, chunks, limit=5)
     if context.startswith("No relevant repo"):
         return context
 
@@ -279,13 +291,16 @@ def summarize_file(path: str) -> str:
     target = resolve_repo_path(path)
     if not target.exists():
         return f"File not found: {path}"
+    if target.is_dir():
+        return summarize_directory(path)
+
     text = read_text(target)
     if not text:
         return f"No readable text in: {path}"
 
     lines = text.splitlines()
-    preview = "\n".join(lines[:40])
-    return f"Summary for {path}\n\n{preview[:1800]}"
+    preview = "\n".join(lines[:60])
+    return f"Summary for {path}\n\n{preview[:2200]}"
 
 
 def summarize_directory(path: str) -> str:
@@ -303,10 +318,10 @@ def summarize_directory(path: str) -> str:
         return f"No readable files found in: {path}"
 
     result = [f"Directory summary for {path}", ""]
-    for f in files[:40]:
+    for f in files[:60]:
         result.append(f"- {f}")
-    if len(files) > 40:
-        result.append(f"... and {len(files) - 40} more files")
+    if len(files) > 60:
+        result.append(f"... and {len(files) - 60} more files")
     return "\n".join(result)
 
 
@@ -327,7 +342,7 @@ def search_repo(term: str) -> str:
         return f"No matches for: {term}"
 
     output = [f"Search results for '{term}':"]
-    for item in matches[:10]:
+    for item in matches[:12]:
         output.append(f"- {item['path']}")
         snippet = item["text"]
         if len(snippet) > 220:
@@ -337,7 +352,7 @@ def search_repo(term: str) -> str:
 
 
 def compare_files(file_a: str, file_b: str) -> str:
-    def load_file_terms(path: str) -> Dict[str, int]:
+    def load_terms(path: str) -> Dict[str, int]:
         p = resolve_repo_path(path)
         text = read_text(p)
         words = re.findall(r"[a-zA-Z0-9_]+", text.lower())
@@ -348,40 +363,22 @@ def compare_files(file_a: str, file_b: str) -> str:
             counts[w] = counts.get(w, 0) + 1
         return counts
 
-    a_counts = load_file_terms(file_a)
-    b_counts = load_file_terms(file_b)
+    a_counts = load_terms(file_a)
+    b_counts = load_terms(file_b)
 
-    common = set(a_counts).intersection(b_counts)
+    common = sorted(set(a_counts).intersection(b_counts), key=lambda w: (a_counts[w] + b_counts[w]), reverse=True)[:10]
     unique_a = sorted(set(a_counts) - set(b_counts), key=lambda w: a_counts[w], reverse=True)[:10]
     unique_b = sorted(set(b_counts) - set(a_counts), key=lambda w: b_counts[w], reverse=True)[:10]
 
     summary = [f"Comparison: {file_a} vs {file_b}"]
-    summary.append(f"Common significant terms: {', '.join(common[:10]) if common else 'none'}")
+    summary.append(f"Common significant terms: {', '.join(common) if common else 'none'}")
     summary.append(f"Terms more prominent in {file_a}: {', '.join(unique_a) if unique_a else 'none'}")
     summary.append(f"Terms more prominent in {file_b}: {', '.join(unique_b) if unique_b else 'none'}")
     return "\n".join(summary)
 
 
-def remember_last_question(question: str) -> None:
-    data = load_memory()
-    data.setdefault("history", []).append({"question": question, "timestamp": datetime.utcnow().isoformat()})
-    data["last_question"] = question
-    save_memory(data)
-
-
-def show_memory() -> str:
-    data = load_memory()
-    history = data.get("history", [])
-    if not history:
-        return "No chat history yet."
-    lines = ["Recent history:"]
-    for item in history[-5:]:
-        lines.append(f"- {item.get('timestamp')} :: {item.get('question')}")
-    return "\n".join(lines)
-
-
 def interactive_chat() -> None:
-    print("Local AI assistant ready. Commands: help, list, search, summary, compare, memory, exit")
+    print("Local AI assistant ready. Commands: help, ask, search, summary, compare, list, memory, exit")
     while True:
         try:
             user_input = input("assistant> ").strip()
@@ -394,9 +391,11 @@ def interactive_chat() -> None:
         if user_input.lower() in {"exit", "quit", "q"}:
             print("Goodbye.")
             break
+
         if user_input.lower() == "help":
-            print("Commands:\n- ask <question>\n- list [path]\n- search <term>\n- summary <path>\n- compare <file_a> <file_b>\n- memory\n- exit")
+            print("Commands:\n- ask <question>\n- search <term>\n- summary <path>\n- compare <file_a> <file_b>\n- list <directory>\n- memory\n- exit")
             continue
+
         if user_input.lower() == "memory":
             print(show_memory())
             continue
@@ -431,7 +430,11 @@ def interactive_chat() -> None:
             if target == ".":
                 print(summarize_directory(target))
             else:
-                print(summarize_file(target))
+                target_path = resolve_repo_path(target)
+                if target_path.is_dir():
+                    print(summarize_directory(target))
+                else:
+                    print(summarize_file(target))
             continue
 
         if cmd == "compare":
@@ -445,14 +448,13 @@ def interactive_chat() -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Local AI assistant for repo-grounded questions and file analysis.")
+    parser = argparse.ArgumentParser(description="Local AI assistant for repo-grounded questions, search, and summaries.")
     subparsers = parser.add_subparsers(dest="command")
 
-    ask_parser = subparsers.add_parser("ask", help="Ask a repository-grounded question")
+    ask_parser = subparsers.add_parser("ask", help="Ask a repo-grounded question")
     ask_parser.add_argument("question", nargs="+", help="Question to ask")
 
     chat_parser = subparsers.add_parser("chat", help="Start interactive chat")
-    chat_parser.add_argument("--refresh", action="store_true", help="Refresh the local index before answering")
 
     index_parser = subparsers.add_parser("index", help="Rebuild the repo index")
 
@@ -469,14 +471,14 @@ def main() -> int:
     list_parser = subparsers.add_parser("list", help="List files in a directory")
     list_parser.add_argument("path", nargs="?", default=".", help="Directory path")
 
-    memory_parser = subparsers.add_parser("memory", help="View recent chat history")
+    memory_parser = subparsers.add_parser("memory", help="Show recent chat history")
 
     args = parser.parse_args()
 
     if args.command == "ask":
         question = " ".join(args.question)
         remember_last_question(question)
-        print(answer_question(question, force_refresh=False))
+        print(answer_question(question))
         return 0
 
     if args.command == "chat":
@@ -497,7 +499,8 @@ def main() -> int:
         if target == ".":
             print(summarize_directory(target))
         else:
-            if (ROOT / target).exists() and (ROOT / target).is_dir():
+            target_path = resolve_repo_path(target)
+            if target_path.is_dir():
                 print(summarize_directory(target))
             else:
                 print(summarize_file(target))
@@ -521,4 +524,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

@@ -2,12 +2,13 @@
 
 A terminal-first, repo-grounded assistant for working with local project files.
 
-Features:
-- Ask repository-grounded questions
-- Search across repo files
-- Summarize files and folders
-- Compare two files by key terms
+## Features
+- Ask repo-grounded questions
+- Search the repo by keyword
+- Summarize a file or directory
+- Compare two files by overlapping terms
 - Interactive terminal chat mode
+- Memory of recent questions
 - Optional model-backed answers via Ollama or OpenAI
 
 ## Quick start
@@ -44,18 +45,18 @@ python assistant_cli.py index
 
 ## Optional model support
 
-Copy the example env file and set values if you want model-backed answers:
+If you want model-backed answers, copy the environment example and set values:
 
 ```bash
 cp .env.example .env
 ```
 
 Then set either:
-- `OPENAI_API_KEY` for the OpenAI API
-- or `OLLAMA_HOST` and `OLLAMA_MODEL` for a local Ollama server
+- `OPENAI_API_KEY` and `OPENAI_MODEL`
+- or `OLLAMA_HOST` and `OLLAMA_MODEL`
 
-If no model is configured, the assistant uses offline repo-grounded matching.
+If no model is configured, the assistant falls back to offline repo-grounded search.
 
 ## Notes
 
-This assistant is grounded in your local repo, not random internet answers. It is designed for project documentation, notes, research corpora, and local knowledge bases.
+This assistant is designed to be grounded in your local repo and useful for project documentation, note-taking, research corpora, and internal knowledge bases.
