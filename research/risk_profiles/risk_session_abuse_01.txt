@@ -1,0 +1,38 @@
+component_type: idv
+component_name: session_integrity_workflow
+version: unknown
+category_summary: Session integrity controls are used to ensure that verification and onboarding steps proceed in a valid, tamper-resistant sequence without replay, fixation, or repeated abuse.
+
+public_risk_themes:
+- risk_type: session_abuse
+  severity: medium
+  description: Verification sessions can be manipulated or replayed when challenge sequencing and integrity controls are weak.
+  public_evidence:
+    - source_type: research
+      url: https://example.com/public-session-abuse-research
+      notes: Public research identifies session fixation, replay, and repeated verification abuse as real onboarding risks.
+- risk_type: synthetic_media
+  severity: medium
+  description: Session integrity problems can be combined with synthetic media to bypass or confuse verification checks.
+  public_evidence:
+    - source_type: research
+      url: https://example.com/public-deepfake-research
+      notes: Public reports note that synthetic media is more dangerous when paired with weak workflow controls.
+
+common_exploit_patterns:
+- exploit_pattern: session_replay
+  description: Attackers replay or reuse a valid verification flow to bypass controls.
+  public_evidence: Public identity verification and fraud research.
+- exploit_pattern: repeated_attempt_abuse
+  description: Attackers exploit repeated verification attempts to overwhelm or outmaneuver controls.
+  public_evidence: Public onboarding and anti-abuse guidance.
+
+mitigations:
+- mitigation: session_integrity_checks
+  notes: Validate session state, device integrity, and step sequencing to reduce replay or fixation attacks.
+- mitigation: challenge_sequence_validation
+  notes: Use randomized challenge ordering and step-level verification to avoid predictable session patterns.
+- mitigation: anomaly_detection
+  notes: Flag repeated or suspicious verification attempts for escalation or manual review.
+
+confidence_level: medium

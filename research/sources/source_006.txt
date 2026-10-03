@@ -1,0 +1,17 @@
+source_id: source_006
+source_name: Public document authenticity and fraud prevention guidance
+source_type: advisory
+url: https://example.com/public-document-authenticity-guidance
+retrieved_at: 2026-10-03
+summary: Public guidance for KYC and onboarding recommends document authenticity checks, anti-tamper validation, and secondary review to reduce identity fraud and synthetic document abuse.
+
+relevance:
+- entity_id: entity_lender_02
+  component_type: document_verification
+  notes: Relevant to identity document integrity and fraud control design in public digital onboarding flows.
+
+observations:
+- observation: Document authenticity checks and tamper detection reduce the risk of manipulated identity files.
+  confidence: high
+- observation: Secondary review for suspicious files is a standard control in public fraud prevention guidance.
+  confidence: high

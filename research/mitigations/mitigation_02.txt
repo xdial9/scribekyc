@@ -1,0 +1,26 @@
+mitigation_category: kyc_best_practices
+control_name: document_authenticity_validation
+summary: Validate submitted identity documents for authenticity, tampering, and image integrity before allowing onboarding or verification to continue.
+
+why_it_matters:
+- Identity verification systems are frequently challenged by manipulated or synthetic document uploads.
+- Fraud prevention guidance consistently recommends authenticity checks and anomaly review for suspicious files.
+
+related_risks:
+- document_manipulation
+- synthetic_media
+- document_fraud
+- session_abuse
+
+public_sources:
+- source_type: advisory
+  url: https://example.com/public-document-authenticity-guidance
+  notes: Public guidance recommends document authenticity checks and tamper validation for KYC and identity verification.
+- source_type: research
+  url: https://example.com/public-document-fraud-research
+  notes: Research notes the risks of altered and synthetic identity documents in digital onboarding.
+
+implementation_notes:
+- Check for image tampering, duplicate uploads, and suspicious artifacts.
+- Require additional review for low-confidence or anomalous document files.
+- Combine with liveness and behavioral checks for higher assurance.

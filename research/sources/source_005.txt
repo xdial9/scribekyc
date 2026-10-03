@@ -1,0 +1,17 @@
+source_id: source_005
+source_name: Public onboarding and session abuse risks
+source_type: research
+url: https://example.com/public-session-abuse-research
+retrieved_at: 2026-10-03
+summary: Public research on identity verification and onboarding workflows highlights session fixation, replay, and repeated verification abuse as common risk patterns where workflow integrity and challenge sequencing are weak.
+
+relevance:
+- entity_id: entity_lender_02
+  component_type: idv
+  notes: Relevant to browser sessions, challenge flows, and verification integrity in digital lending onboarding.
+
+observations:
+- observation: Verification workflows can be abused when challenge sequences are predictable or session integrity is weak.
+  confidence: high
+- observation: Strong session controls and anomaly detection reduce repeated attempts and workflow manipulation.
+  confidence: high
