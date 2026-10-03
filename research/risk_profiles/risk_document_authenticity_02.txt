@@ -1,0 +1,38 @@
+component_type: document_verification
+component_name: document_authenticity_pipeline
+version: unknown
+category_summary: Document authenticity pipelines review identity files for tampering, duplication, ambiguity, and low-confidence submissions before accepting or processing onboarding checks.
+
+public_risk_themes:
+- risk_type: document_manipulation
+  severity: high
+  description: Fraudsters can alter or synthesize identity documents to bypass weak validation and review workflows.
+  public_evidence:
+    - source_type: advisory
+      url: https://example.com/public-identity-fraud-advisory
+      notes: Public guidance identifies manipulated identity documents as a common target in digital onboarding.
+- risk_type: synthetic_media
+  severity: medium
+  description: AI-generated identities and manipulated files can reduce confidence in document authenticity checks.
+  public_evidence:
+    - source_type: research
+      url: https://example.com/public-deepfake-research
+      notes: Public deepfake and synthetic media research highlights identity-related abuse when document checks are weak.
+
+common_exploit_patterns:
+- exploit_pattern: altered_identity_document
+  description: Attackers use edited, re-used, or synthetic identity material to misrepresent identity.
+  public_evidence: Public KYC and document authenticity guidance.
+- exploit_pattern: low_confidence_submission
+  description: Low-quality or ambiguous submissions are accepted without sufficient secondary validation.
+  public_evidence: Public onboarding governance guidance.
+
+mitigations:
+- mitigation: automated_authenticity_checks
+  notes: Validate image integrity, artifact presence, and quality before accepting submitted documents.
+- mitigation: risk_based_escalation
+  notes: Route low-confidence or suspicious submissions to human review or secondary validation.
+- mitigation: layered_verification
+  notes: Pair document review with liveness, behavioral, and session checks to reduce false acceptance.
+
+confidence_level: medium

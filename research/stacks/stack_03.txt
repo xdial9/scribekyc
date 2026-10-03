@@ -1,0 +1,50 @@
+entity_id: entity_lender_04
+stack_snapshot_date: 2026-10-03
+stack_summary: A public-facing lending stack appears to rely on digital onboarding, identity verification, anti-fraud review, and automated underwriting. Public evidence indicates that fraud prevention and identity confidence are treated as layered controls rather than a single signal.
+
+components:
+- component_type: onboarding
+  vendor_or_category: digital_application_flow
+  version: unknown
+  assessment: inferred from public materials
+  evidence:
+    - source_type: blog
+      url: https://example.com/public-onboarding-overview
+      notes: Public materials discuss digital application and onboarding for consumer lending.
+- component_type: idv
+  vendor_or_category: identity_verification_vendor
+  version: unknown
+  assessment: inferred from public materials
+  evidence:
+    - source_type: job_posting
+      url: https://example.com/public-idv-role-posting
+      notes: Public hiring posts reference identity verification and risk prevention roles.
+- component_type: document_verification
+  vendor_or_category: document_verification_vendor
+  version: unknown
+  assessment: inferred from public materials
+  evidence:
+    - source_type: press_release
+      url: https://example.com/public-document-verification-announcement
+      notes: Public announcements describe document review and digital identity assurance.
+- component_type: risk_engine
+  vendor_or_category: fraud_risk_model
+  version: unknown
+  assessment: inferred from public materials
+  evidence:
+    - source_type: blog
+      url: https://example.com/public-risk-underwriting-overview
+      notes: Public marketing materials highlight automated risk and underwriting review.
+
+risk_associations:
+- risk_type: document_fraud
+  related_components: document_verification, idv
+  public_notes: Identity and document assurance workflows are commonly exposed to manipulated or synthetic materials.
+- risk_type: liveness_bypass
+  related_components: idv
+  public_notes: Liveness checks require active challenge design and strong anti-spoofing controls.
+- risk_type: session_abuse
+  related_components: onboarding, idv
+  public_notes: Session and challenge flow integrity remain important in preventing replay or repeated attempts.
+
+confidence_level: medium

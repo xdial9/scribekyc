@@ -1,0 +1,17 @@
+source_id: source_010
+source_name: Public KYC and onboarding governance guidance
+source_type: advisory
+url: https://example.com/public-kyc-governance-guidance
+retrieved_at: 2026-10-03
+summary: Public governance and compliance guidance for onboarding and KYC reviews calls for evidence-based verification, anomaly detection, and escalation for high-risk or suspicious submissions. This guidance commonly underpins anti-fraud measures in digital onboarding stacks.
+
+relevance:
+- entity_id: entity_lender_03
+  component_type: kyc
+  notes: Relevant to governance, escalation, and identity confidence in KYC review workflows.
+
+observations:
+- observation: Governance guidance favors evidence-based and layered confidence controls rather than automation alone.
+  confidence: high
+- observation: Suspicious onboarding decisions benefit from escalation, anomaly review, and cross-checks.
+  confidence: high

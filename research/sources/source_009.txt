@@ -1,0 +1,17 @@
+source_id: source_009
+source_name: Public multi-factor identity verification guidance
+source_type: advisory
+url: https://example.com/public-multifactor-identity-guidance
+retrieved_at: 2026-10-03
+summary: Public guidance on identity assurance emphasizes that fraud prevention is stronger when document checks, liveness prompts, session controls, and secondary or layered review are combined. Single-signal identity checks are more likely to be bypassed by synthetic media or manipulated documents.
+
+relevance:
+- entity_id: entity_lender_03
+  component_type: idv
+  notes: Relevant to layered identity verification design in digital onboarding and consumer lending workflows.
+
+observations:
+- observation: Multi-factor or layered identity checks reduce the success rate of synthetic and manipulated identity attacks.
+  confidence: high
+- observation: Public anti-fraud guidance consistently prefers combining identity signals instead of relying on a single signal.
+  confidence: high

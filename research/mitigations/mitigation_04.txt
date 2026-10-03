@@ -1,0 +1,26 @@
+mitigation_category: anti_fraud_controls
+control_name: layered_identity_assurance
+summary: Combine document verification, liveness checks, session integrity validation, and behavioral or device signals into a layered identity assurance model.
+
+why_it_matters:
+- Public fraud guidance repeatedly emphasizes that single-signal identity checks are easier to bypass than layered controls.
+- Synthetic media, manipulated documents, and session replay remain common points of failure in weak onboarding flows.
+
+related_risks:
+- synthetic_media
+- liveness_bypass
+- document_fraud
+- session_abuse
+
+public_sources:
+- source_type: advisory
+  url: https://example.com/public-multifactor-identity-guidance
+  notes: Public guidance recommends layered identity assurance instead of relying on a single verification signal.
+- source_type: advisory
+  url: https://example.com/public-kyc-governance-guidance
+  notes: Public governance guidance recommends layered controls and escalation when risk indicators are uncertain.
+
+implementation_notes:
+- Anchor the stack around document authenticity, liveness, and session integrity controls.
+- Add device and behavioral signals only as context for risk scoring and escalation.
+- Require secondary review for suspicious, low-confidence, or anomalous verification attempts.
