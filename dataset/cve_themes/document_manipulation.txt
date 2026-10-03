@@ -1,0 +1,25 @@
+Risk Theme: Document manipulation
+Category: Identity verification / KYC
+Description:
+Document manipulation involves altering or enhancing identity documents to bypass verification controls through manipulated scans, images, or injected artifacts.
+
+Common Attack Patterns:
+- Modified document images
+- Fake or altered identity photos
+- Reused or manipulated biometric data
+- Screenshots or synthetic document images
+
+Impact:
+- Fraudulent identity creation
+- Onboarding bypass
+- Synthetic identity risk
+- Increased KYC compliance exposure
+
+Typical Controls:
+- Document authenticity validation
+- OCR and security feature checks
+- Image tamper detection
+- Human or secondary review for outliers
+- Multi-factor identity checks
+
+This note reflects common public anti-fraud and KYC theme research.

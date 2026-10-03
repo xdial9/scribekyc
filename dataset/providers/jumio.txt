@@ -1,0 +1,26 @@
+Provider: Jumio
+Category: Identity Verification / KYC
+Product Types:
+- KYC onboarding
+- Identity verification
+- Document scanning
+- Liveness checks
+
+Public Notes:
+- Jumio is a common identity verification provider used in onboarding and authentication flows.
+- Public risk themes include document verification manipulation, deepfake attacks, and session or verification workflow abuse.
+
+Public Risk Themes:
+- Document fraud or manipulated uploads
+- Liveness defeat via synthetic media
+- Session flow abuse or verification bypass patterns
+- Weak image or device validation in some implementations
+
+General Mitigation Guidance:
+- Attack-resistant liveness checks
+- Strong document integrity validation
+- Multi-layer verification controls
+- Fraud scoring and anomaly detection
+- Additional challenge workflows for suspicious sessions
+
+This note is intentionally generalized and public-source based.

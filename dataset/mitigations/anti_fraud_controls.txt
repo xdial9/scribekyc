@@ -1,0 +1,18 @@
+Category: Anti-fraud controls
+Description:
+Fraud controls in IDV and KYC workflows typically combine challenge flows, anomaly detection, and manual review.
+
+Examples:
+- Liveness challenge prompts
+- Biometric quality checks
+- Suspicious document detection
+- Device fingerprint review
+- Behavior-based fraud scoring
+- Human review for risk escalations
+
+Why it matters:
+- Fraudsters adapt quickly to weak controls
+- Synthetic media and manipulated documents are increasingly common
+- A single control is rarely sufficient
+
+This note reflects common public anti-fraud patterns.

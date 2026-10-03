@@ -1,0 +1,25 @@
+Provider: iProov
+Category: Identity Verification / KYC
+Product Types:
+- Biometric verification
+- Liveness detection
+- Identity assurance
+
+Public Notes:
+- iProov is a known identity verification and biometric assurance vendor.
+- Public risk discussions focus on biometric spoofing, presentation attacks, deepfakes, and liveness detection quality.
+
+Public Risk Themes:
+- Presentation attacks using synthetic media
+- Deepfake bypass attempts
+- Weak or insufficient liveness challenge designs
+- Fraud through spoofed identity assets
+
+General Mitigation Guidance:
+- Active user challenge prompts
+- Dynamic liveness validation
+- AI-assisted spoof detection
+- Human review for high-risk sessions
+- Multi-step security controls
+
+This note is intentionally generalized and public-source based.

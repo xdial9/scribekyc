@@ -1,0 +1,27 @@
+Provider: Socure
+Category: Identity Verification / KYC
+Product Types:
+- Identity verification
+- Document verification
+- Liveness detection
+- Risk scoring
+
+Public Notes:
+- Socure is widely used in identity verification and onboarding workflows.
+- Public security research often focuses on liveness detection, document verification, and synthetic media attacks.
+- Legacy or weakly configured verification pipelines may be more exposed to presentation attacks.
+
+Public Risk Themes:
+- Liveness bypass via deepfakes or replayed media
+- Synthetic media attacks against facial verification
+- Document fraud or manipulated upload vectors
+- Weak anti-spoofing controls in older implementations
+
+General Mitigation Guidance:
+- Active liveness challenge flows
+- Anti-spoofing quality checks
+- Multi-step verification
+- Document authenticity validation
+- Risk-based anomaly monitoring
+
+This note is intentionally generalized and public-source based.

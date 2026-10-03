@@ -1,0 +1,24 @@
+Risk Theme: Session or verification workflow abuse
+Category: Identity verification / onboarding
+Description:
+Verification workflows can be abused when session integrity or workflow controls are insufficient. This may include repeated attempts, manipulated steps, or bypass attempts across the onboarding flow.
+
+Common Attack Patterns:
+- Session replay or fixation
+- Workflow skip or manipulation
+- Repeated attempts with weakening controls
+- Abuse of gaps between verification stages
+
+Impact:
+- Fraudulent identity acceptance
+- Manual review overload
+- Abuse of onboarding workflows
+- Security and compliance exposure
+
+Typical Controls:
+- Session integrity checks
+- Step-level validation and logging
+- Suspicious pattern detection
+- Device and network anomaly review
+
+This note reflects general public security risk themes in verification systems.

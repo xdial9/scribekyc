@@ -1,0 +1,26 @@
+Provider: Onfido
+Category: Identity Verification / KYC
+Product Types:
+- Identity verification
+- Document verification
+- Biometric checks
+- Fraud review
+
+Public Notes:
+- Onfido is a common identity verification vendor in digital onboarding.
+- Public research and vendor advisories commonly discuss document verification integrity, anti-spoofing, and fraud controls.
+
+Public Risk Themes:
+- Document manipulation or counterfeit uploads
+- Weak image validation in some configurations
+- Replay or presentation attack issues
+- Incomplete anti-fraud controls in certain workflows
+
+General Mitigation Guidance:
+- Image authenticity checks
+- Multi-factor onboarding review
+- Active verification challenge prompts
+- Suspicious document anomaly review
+- Behavior and device analysis
+
+This note is intentionally generalized and public-source based.

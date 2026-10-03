@@ -1,0 +1,25 @@
+Risk Theme: Liveness bypass
+Category: Identity verification / KYC
+Description:
+A liveness bypass occurs when an attacker presents synthetic media, replayed footage, or manipulated visuals in a way that defeats biometric verification.
+
+Common Attack Patterns:
+- Deepfake face presented to camera
+- Replay of a prerecorded video
+- Printed photo or masked presentation
+- Synthetic media tuned to evade detection
+
+Impact:
+- Identity fraud
+- Account takeover risk
+- Fraudulent onboarding or account creation
+- Increased scam and impersonation risk
+
+Typical Controls:
+- Active liveness challenge
+- Randomized prompt sequence
+- Multi-frame challenge validation
+- Quality scoring and anti-spoofing checks
+- Human review for suspicious sessions
+
+This note reflects common public anti-fraud and identity verification themes.

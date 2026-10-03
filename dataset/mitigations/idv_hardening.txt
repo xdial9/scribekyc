@@ -1,0 +1,20 @@
+Category: Identity verification / KYC hardening
+Description:
+Risk hardening for IDV and KYC systems is a combination of device, document, and biometric controls designed to reduce fraud and spoofing risk.
+
+Key Controls:
+- Active liveness verification
+- Multi-factor verification
+- Device and network anomaly checks
+- Document authenticity validation
+- Behavioral risk analysis
+- Fraud scoring with exception review
+- Human review for edge cases
+
+General Guidance:
+- Don’t rely on one control alone
+- Use layered defenses
+- Prioritize anti-spoofing and anomaly detection
+- Maintain review and escalation paths for unusual verification attempts
+
+This note summarizes general public guidance for hardening identity verification systems.

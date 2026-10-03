@@ -1,0 +1,13 @@
+Category: KYC best practices
+Description:
+KYC and onboarding controls should combine identity verification, document validation, and behavioral signals to reduce fraud.
+
+Recommended Practices:
+- Use layered identity verification
+- Validate documentation and capture quality
+- Check for AI-generated or manipulated media
+- Monitor repeated patterns and anomaly signals
+- Require secondary review for risky flows
+- Keep verification and fraud systems updated
+
+This note reflects general public anti-fraud and compliance guidance in KYC operations.
