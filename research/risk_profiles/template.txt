@@ -1,0 +1,26 @@
+# Risk profile template
+
+component_type: <idv | kyc | biometrics | document_verification | risk_engine | api>
+component_name: <vendor or category name>
+version: <version if known>
+category_summary: <short overview>
+
+public_risk_themes:
+- risk_type: <liveness_bypass | doorbuster | document_manipulation | synthetic_media | session_hijack | replay_attack | etc.>
+  severity: <low | medium | high | critical>
+  description: <public description of the risk>
+  public_evidence:
+    - source_type: <nvd | advisory | blog | research | exploit_db>
+      url: <public URL>
+      notes: <what the source says>
+
+common_exploit_patterns:
+- exploit_pattern: <pattern name>
+  description: <short description>
+  public_evidence: <source or note>
+
+mitigations:
+- mitigation: <control or defense>
+  notes: <how it addresses the risk>
+
+confidence_level: <low | medium | high>
