@@ -1,0 +1,26 @@
+mitigation_category: onboarding_fraud_controls
+control_name: randomized_verification_orchestration
+summary: Build onboarding and identity verification around randomized challenge flows, session integrity checks, and structured escalation for suspicious or repeated attempts.
+
+why_it_matters:
+- Public guidance repeatedly recommends randomization and session validation because predictable workflows create replay and automation opportunities.
+- Fraud resistance improves when verification checks are orchestrated as a system rather than as isolated checks.
+
+related_risks:
+- session_abuse
+- liveness_bypass
+- synthetic_media
+- document_fraud
+
+public_sources:
+- source_type: research
+  url: https://example.com/public-challenge-design-guidance
+  notes: Public guidance emphasizes randomized challenge design and validation in identity verification.
+- source_type: advisory
+  url: https://example.com/public-fraud-escalation-guidance
+  notes: Public fraud guidance recommends escalation and secondary review for suspicious or repeated attempts.
+
+implementation_notes:
+- Use randomized, session-linked challenges to prevent replay and automation abuse.
+- Enforce server-side validation of challenge sequencing and session state.
+- Escalate repeated or suspicious attempts to human review or secondary verification.

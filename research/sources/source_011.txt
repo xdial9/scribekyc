@@ -1,0 +1,17 @@
+source_id: source_011
+source_name: Public verification challenge design guidance
+source_type: research
+url: https://example.com/public-challenge-design-guidance
+retrieved_at: 2026-10-03
+summary: Public guidance on identity verification challenge design highlights that randomized, active prompts and server-side validation reduce replay and automation abuse. Verification challenge design is treated as a core control for fraud resistance in digital onboarding.
+
+relevance:
+- entity_id: entity_lender_04
+  component_type: idv
+  notes: Relevant to workflow integrity, challenge sequencing, and replay resistance in digital onboarding.
+
+observations:
+- observation: Predictable challenge flows are easier to replay or automate.
+  confidence: high
+- observation: Randomized challenge logic, session validation, and anomaly detection improve verification integrity.
+  confidence: high

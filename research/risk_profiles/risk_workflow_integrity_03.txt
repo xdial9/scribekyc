@@ -1,0 +1,38 @@
+component_type: risk_engine
+component_name: verification_orchestration
+version: unknown
+category_summary: Verification orchestration coordinates session state, biometric checks, document review, and risk escalation so that suspicious onboarding events are evaluated as a combined workflow rather than in isolation.
+
+public_risk_themes:
+- risk_type: session_abuse
+  severity: medium
+  description: Poor orchestration can allow repeated attempts, replayed sessions, or predictable workflow abuse.
+  public_evidence:
+    - source_type: research
+      url: https://example.com/public-challenge-design-guidance
+      notes: Public guidance notes that predictable challenge flows and weak session management increase fraud susceptibility.
+- risk_type: liveness_bypass
+  severity: high
+  description: Verification orchestration that over-relies on a single signal can create a bypass path for synthetic or replayed media.
+  public_evidence:
+    - source_type: research
+      url: https://example.com/public-anti-spoofing-research
+      notes: Public research finds that weak orchestration amplifies the risk of synthetic media bypasses.
+
+common_exploit_patterns:
+- exploit_pattern: predictable_session_flow
+  description: Attackers exploit patterned verification sequences and weak session validation.
+  public_evidence: Public challenge design and fraud guidance.
+- exploit_pattern: automated_retry_abuse
+  description: Fraud attempts are retried across predictable flows until one bypass succeeds.
+  public_evidence: Public fraud detection and escalation guidance.
+
+mitigations:
+- mitigation: randomized_challenge_logic
+  notes: Randomize challenge steps and validate server-side state to prevent replay and predictable attempts.
+- mitigation: anomaly_based_escalation
+  notes: Escalate suspicious or repeated attempts to secondary review or layered verification.
+- mitigation: workflow_integrity_monitoring
+  notes: Monitor session validity, behavior consistency, and challenge sequencing during verification.
+
+confidence_level: medium

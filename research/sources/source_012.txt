@@ -1,0 +1,17 @@
+source_id: source_012
+source_name: Public fraud detection escalation guidance
+source_type: advisory
+url: https://example.com/public-fraud-escalation-guidance
+retrieved_at: 2026-10-03
+summary: Public fraud and risk guidance recommends escalation, observed anomaly review, and layered checks for suspicious identity or onboarding attempts. This appears across public KYC and anti-fraud frameworks where automation alone is insufficient.
+
+relevance:
+- entity_id: entity_lender_04
+  component_type: risk_engine
+  notes: Relevant to model-driven escalation, suspicious behavior review, and layered controls.
+
+observations:
+- observation: Suspicious identity or onboarding attempts should trigger manual review or secondary assurance.
+  confidence: high
+- observation: Layered escalation reduces false acceptance in synthetic media, document fraud, and session abuse scenarios.
+  confidence: high
