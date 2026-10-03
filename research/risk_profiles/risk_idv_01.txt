@@ -1,0 +1,45 @@
+component_type: idv
+component_name: identity_verification_vendor
+version: unknown
+category_summary: Identity verification services cover onboarding, proof-of-identity checks, document review, and user assurance during digital lending workflows.
+
+public_risk_themes:
+- risk_type: liveness_bypass
+  severity: high
+  description: Attackers can present replayed or AI-generated media to bypass or confuse liveness checks.
+  public_evidence:
+    - source_type: research
+      url: https://example.com/public-liveness-research
+      notes: Public security research documents synthetic media defeating simple biometric verification checks.
+- risk_type: synthetic_media
+  severity: high
+  description: Synthetic audio and visual content can be used to impersonate users during verification or onboarding.
+  public_evidence:
+    - source_type: research
+      url: https://example.com/public-deepfake-research
+      notes: Public deepfake research shows the risk of AI-generated faces in verification workflows.
+- risk_type: document_manipulation
+  severity: medium
+  description: Document uploads can be manipulated or fabricated to pass identity review checks.
+  public_evidence:
+    - source_type: advisory
+      url: https://example.com/public-document-fraud-advisory
+      notes: Document authenticity checks remain a public concern in KYC and onboarding workflows.
+
+common_exploit_patterns:
+- exploit_pattern: replayed_video_attack
+  description: Pre-recorded or synthetic video can be used to satisfy liveness prompts in weak implementations.
+  public_evidence: Public research on biometric spoofing and deepfake detection.
+- exploit_pattern: manipulated_document_upload
+  description: Fraudsters can submit altered or synthetic identity documents to bypass document review layers.
+  public_evidence: Public KYC and onboarding fraud research.
+
+mitigations:
+- mitigation: active_liveness_challenge
+  notes: Randomized challenge prompts and active interaction reduce passive playback attacks.
+- mitigation: anti_spoofing_quality_checks
+  notes: Biometric quality scoring can detect manipulated or synthetic media.
+- mitigation: multi_factor_verification
+  notes: Layering document checks with behavioral or secondary verification reduces fraud exposure.
+
+confidence_level: medium
