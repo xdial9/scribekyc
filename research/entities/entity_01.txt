@@ -1,0 +1,48 @@
+entity_id: entity_lender_01
+entity_type: fintech
+market_segment: personal lending
+country: unknown
+public_summary: A fintech lender in the consumer credit market that uses public-facing digital onboarding and identity verification workflows. Public materials indicate a focus on rapid onboarding, digital application flows, and AI-enhanced risk assessment.
+public_stack_summary: Public-facing stack likely includes digital onboarding, identity verification, anti-fraud checks, document review, and risk scoring. The technology category is consistent with modern consumer lending workflows.
+confidence_level: medium
+updated_at: 2026-10-03
+
+public_sources:
+- source_name: public job postings
+  source_type: job_posting
+  url: https://example.com/public-job-posting
+  notes: Public hiring posts reference identity verification, KYC, fraud prevention, and risk technology roles.
+- source_name: public company blog
+  source_type: blog
+  url: https://example.com/public-company-blog
+  notes: Public marketing materials discuss digital onboarding and AI-enabled risk workflows.
+
+observed_components:
+- component_type: idv
+  vendor_or_category: identity_verification_vendor
+  version: unknown
+  evidence: Public hiring and product language suggest use of identity verification tooling in onboarding.
+  confidence: medium
+- component_type: kyc
+  vendor_or_category: kyc_vendor
+  version: unknown
+  evidence: Public digital onboarding and compliance language suggest KYC process integration.
+  confidence: medium
+- component_type: biometrics
+  vendor_or_category: biometric_verification
+  version: unknown
+  evidence: Public product language suggests biometric risk controls or active verification in onboarding flows.
+  confidence: medium
+- component_type: risk_engine
+  vendor_or_category: custom_ai_risk_engine
+  version: unknown
+  evidence: Public references to AI-based lending and underwriting imply custom risk engines and model-driven review.
+  confidence: medium
+
+public_risk_notes:
+- risk_type: liveness_bypass
+  notes: Identity verification stacks and biometric verification flows are commonly exposed to synthetic media and liveness bypass attacks.
+- risk_type: synthetic_media
+  notes: AI-generated faces and manipulated media can challenge onboarding and biometric verification controls.
+- risk_type: document_fraud
+  notes: Document verification flows can be abused by manipulated or synthetic document uploads.
