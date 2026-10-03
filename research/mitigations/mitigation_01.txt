@@ -1,0 +1,26 @@
+mitigation_category: idv_hardening
+control_name: active_liveness_challenge
+summary: Use active, randomized liveness checks to prevent simple replay or static image bypasses during digital identity verification.
+
+why_it_matters:
+- Liveness checks are a common front line against synthetic media and replay attacks.
+- Weak or passive verification systems are vulnerable to presentation and deepfake attacks.
+
+related_risks:
+- liveness_bypass
+- synthetic_media
+- session_abuse
+- document_fraud
+
+public_sources:
+- source_type: research
+  url: https://example.com/public-liveness-research
+  notes: Public security research discusses active challenge flows as a means to reduce spoofing and replay attacks.
+- source_type: advisory
+  url: https://example.com/public-idv-advisory
+  notes: Identity verification guidance recommends active user prompts to reduce spoofing risk.
+
+implementation_notes:
+- Randomize prompts and challenge sequences.
+- Combine active verification with image quality and anti-spoofing models.
+- Escalate suspicious or failed verification attempts to secondary review.
