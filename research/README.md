@@ -4,7 +4,15 @@ This folder contains research based entirely on public sources. No confidential,
 
 ## Purpose
 
-To build a comprehensive understanding of public technology stacks, known vulnerabilities, and risk patterns in the fintech/lending/IDV space using only publicly available information.
+To build a comprehensive understanding of public technology stacks, known vulnerabilities, and risk patterns in the fintech, lending, identity verification, and onboarding space using only publicly available information.
+
+## Scope and rules
+
+- Public sources only
+- Traceable URLs and public notes
+- Anonymized entities and generalized component summaries
+- No confidential or non-public vendor or customer data
+- Human interpretation stays outside the repo and is not treated as factual evidence
 
 ## Structure
 
@@ -17,10 +25,10 @@ To build a comprehensive understanding of public technology stacks, known vulner
 ## Methodology
 
 All data is collected from:
-- Public job postings (LinkedIn, Indeed, Glassdoor)
+- Public job postings
 - Public GitHub repositories
 - Company blog posts and case studies
-- SEC filings and investor materials
+- Investor materials and public filings
 - Public API documentation
 - Public security advisories and CVE databases
 - Public vendor security pages
@@ -50,3 +58,26 @@ But the dataset itself stays generalized and public-source based.
 ## Source tracking
 
 Every claim in this research should be traceable to a public source. See `sources/` for the evidence log.
+
+## Dominant themes in the current corpus
+
+1. Synthetic media and liveness bypass
+   - Public evidence repeatedly highlights deepfake and synthetic media as a risk to weak biometric and liveness checks.
+
+2. Document fraud and manipulated identity files
+   - Public guidance and research discuss manipulated ID documents, synthetic identity material, and low-confidence onboarding events.
+
+3. Workflow integrity and session abuse
+   - Predictable challenge flows, weak session validation, and repeated attempts are common abuse vectors in public guidance.
+
+4. Layered verification and escalation
+   - The strongest public pattern is to combine document checks, liveness, session validation, and manual or secondary review.
+
+## Recommended operating model
+
+Keep the repo as the evidence base and keep private interpretation separate from the public corpus.
+
+- Repo = public evidence and structured notes
+- Private reasoning = internal synthesis and application
+
+This preserves a clean, defensible research practice and keeps the dataset aligned with public-source-only boundaries.
