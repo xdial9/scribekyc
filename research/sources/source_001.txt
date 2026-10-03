@@ -1,0 +1,17 @@
+source_id: source_001
+source_name: Example public deepfake research
+source_type: research
+url: https://example.com/public-deepfake-research
+retrieved_at: 2026-10-03
+summary: Public research discusses synthetic media and deepfake threats against biometric verification and user identity confirmation.
+
+relevance:
+- entity_id: entity_lender_01
+  component_type: biometrics
+  notes: Relevant to public risk themes affecting onboarding and identity checks.
+
+observations:
+- observation: Deepfake and synthetic media can defeat weak liveness verification prompts.
+  confidence: high
+- observation: Identity verification systems require multi-layer anti-spoofing and anomaly controls.
+  confidence: high
