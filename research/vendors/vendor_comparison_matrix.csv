@@ -1,0 +1,7 @@
+vendor,liveness,document_auth,device_session,synthetic_media,overall,principal_public_weakness
+AU10TIX,4.5,5.0,4.0,4.5,4.5,"If active liveness is not enforced or low-quality media is accepted with no escalation"
+Onfido,4.5,4.5,3.5,4.5,4.3,"Passive-only models or low-quality degraded capture"
+Jumio,4.0,4.0,3.5,4.0,3.9,"Passive-only configurations or weak document-depth on realistic printed forgeries"
+Socure,3.8,3.8,3.8,4.5,4.0,"Dependence on consistent enforcement of behavioral/synthetic signals"
+IDology,3.5,3.8,4.0,3.8,3.8,"Public synthetic media detail is less explicit than top vendors"
+Veriff,3.5,3.5,4.0,3.5,3.6,"Passive liveness is the primary concern against the described attack pattern"
