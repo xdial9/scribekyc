@@ -1,0 +1,47 @@
+vendor_id: vendor_jumio
+vendor_name: Jumio
+vendor_type: identity_verification
+retrieved_at: 2026-10-03
+
+public_resources:
+- https://documentation.jumio.ai/docs/references/capabilities/liveness
+- https://www.jumio.com/products/liveness-detection/
+- https://documentation.jumio.ai/
+- https://github.com/Jumio/documentation
+
+key_components:
+
+liveness_detection:
+  approach: Active and passive options
+  active_liveness: Yes, users may be asked to blink, turn head, speak, or follow on-screen object
+  passive_liveness: Yes, analyzes selfie/video for liveness signals without user action
+  face_template: Optional FaceMap technology for face-based biometrics
+  anti_spoofing: ISO/IEC 30107-3 Level 2 PAD conformance via iBeta lab testing
+  detects: digital copy, photocopy, manipulated selfie
+  outcome_types: Passed, Rejected, Warnings (quality issues, multiple faces)
+
+document_verification:
+  supported_types: Passports, driver's licenses, national IDs, government-issued IDs
+  capture_method: Front and back photos via web client or SDK
+  data_extraction: OCR-based
+  security: TLS encryption for data transfer, API authentication via token/secret
+
+device_and_session:
+  integration_modes: Web SDK, native SDKs (iOS/Android), REST APIs
+  workflow: Initialize session -> Capture ID -> Selfie/Liveness -> Decision
+  real_time_feedback: Yes, guidance for better image capture
+  webhooks: Available for session outcomes
+
+fraud_controls:
+  risk_based_decision: Yes, pass/warning/fail logic
+  kuc_aml_support: Built-in KYC/AML compliance
+
+compliance:
+  standards: ISO/IEC 30107-3 Level 2 PAD
+  use_cases: Financial onboarding, eKYC, AML, ongoing authentication
+
+notes:
+- Offers both active and passive liveness (Jumio is more flexible than Veriff's passive-only approach)
+- Active challenge prompts (blink, head turn, speak) harder to spoof with static media
+- Comprehensive documentation in GitHub and official portals
+- No public disclosure of anti-spoofing robustness on degraded/compressed media

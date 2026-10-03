@@ -1,0 +1,44 @@
+vendor_id: vendor_socure
+vendor_name: Socure
+vendor_type: identity_verification
+retrieved_at: 2026-10-03
+
+public_resources:
+- Sigma Synthetic Fraud product
+- Public documentation on deepfake detection
+- Industry partnerships and intelligence sharing
+
+key_components:
+
+liveness_and_document:
+  liveness_detection: Advanced computer vision and AI
+  document_verification: Detects artifacts and inconsistencies
+  synthetic_identity_risk_scoring: Machine learning models for real vs synthetic detection
+  deepfake_detection: Analysis of facial movements, micro-expressions, lighting consistency
+
+deepfake_detection_techniques:
+  facial_analysis: Movements and micro-expressions
+  lighting_consistency: Inconsistencies in shadows and reflections
+  video_frame_quality: Frame rate and audio-visual sync
+  cross_reference: Checking against known deepfake fingerprints
+
+behavioral_analysis:
+  device_interaction: Typing speed, motion patterns
+  difficult_to_mimic: These signals very hard for deepfake technology to replicate
+
+synth_identity_protection:
+  sigma_synthetic_fraud: ML-based synthetic identity detection
+  identity_component_analysis: Detects fake components of constructed identities
+  ai_generated_media_detection: Identifies AI-generated or manipulated content
+
+fraud_controls:
+  continuous_improvement: Regular algorithm updates
+  industry_partnership: Intelligence sharing with industry groups
+  threat_monitoring: Tracks evolving synthetic media and deepfake techniques
+
+notes:
+- Focus on synthetic identity and deepfake detection
+- Behavioral analysis adds hard-to-spoof signal layer
+- Continuous algorithm updates to counter evolving threats
+- Sigma product specifically targets synthetic fraud
+- Specific anti-spoofing robustness to optical degradation not publicly detailed

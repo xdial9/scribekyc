@@ -1,0 +1,85 @@
+vendor_comparison: IDV Provider Stack Analysis
+date: 2026-10-03
+
+liveness_detection_approach:
+  passive_only: Veriff
+  active_and_passive: Jumio, Onfido, AU10TIX, Socure
+  notes: Active challenge prompts (blink, head turn, speak) are harder to defeat with static presentations (masks, printed media). Passive-only requires stronger anti-spoofing models.
+
+3d_depth_validation:
+  explicitly_mentioned: Onfido (3D face mapping)
+  implied_in_stack: AU10TIX, Socure (facial analysis)
+  not_explicitly_disclosed: Veriff, Jumio, IDology
+  notes: 3D depth detection is difficult for attackers using 2D masks or printed media to replicate.
+
+document_authenticity_depth:
+  highest_detail: AU10TIX (5000+ document types, NFC chip reading, 180+ forensic tests)
+  comprehensive: Onfido (microprint, security features, compression artifact detection)
+  standard: Veriff, Jumio, IDology
+  notes: NFC chip reading provides direct chip-level authenticity validation.
+
+deepfake_and_synthetic_media:
+  explicit_focus: Socure (Sigma Synthetic Fraud), AU10TIX (AI-generated media detection)
+  mentioned: Veriff, Onfido
+  implied: Jumio, IDology
+
+device_and_session_integrity:
+  explicitly_detailed: Veriff (device/browser/network fingerprinting, session API)
+  mentioned: IDology (device fingerprinting), AU10TIX (REST API)
+  not_explicitly_disclosed: Jumio, Onfido, Socure
+
+fraud_intelligence_and_consortium:
+  emphasized: IDology (consortium network), AU10TIX (consortium validation)
+  mentioned: Veriff (anomaly detection)
+  not_explicitly_disclosed: Jumio, Onfido, Socure
+
+manual_review_and_escalation:
+  explicitly_mentioned: AU10TIX (DoubleCheck for edge cases)
+  implied: Veriff, IDology, Onfido
+  not_explicitly_disclosed: Jumio, Socure
+
+pad_compliance:
+  iBeta PAD Level 2: Jumio, Onfido
+  ISO/IEC 30107-3 (generic): Veriff
+  not_explicitly_mentioned: Socure, IDology, AU10TIX
+  notes: iBeta testing is independent third-party validation; lack of disclosure does not mean absence.
+
+vulnerability_to_combined_attacks:
+  mask_plus_printed_card_plus_compression:
+    
+    veriff:
+      liveness_risk: Passive-only; may struggle with high-quality mask if anti-spoofing model weak on degraded media
+      document_risk: Hologram detection is image-analysis based; printed card with realistic mask photo might pass
+      combined_risk: High if anti-spoofing fails on compressed input and document check is weak on printed forgeries
+    
+    jumio:
+      liveness_risk: Active prompts (blink, head turn) hard for mask to perform; lower risk if mask cannot respond
+      document_risk: Similar to Veriff; printed document vulnerability depends on implementation
+      combined_risk: Lower than Veriff if active prompts enforced; mask struggle with dynamic challenges
+    
+    onfido:
+      liveness_risk: Active challenge + 3D face mapping; 3D depth detection very hard for 2D mask
+      document_risk: Microprint, compression artifact detection; printed forgeries may be caught
+      combined_risk: Lower; 3D validation and active challenges significantly harder to defeat
+    
+    au10tix:
+      liveness_risk: Passive and active options; if active enforced, mask struggle similar to Jumio
+      document_risk: NFC chip reading provides direct authenticity (if real ID used with chip)
+      combined_risk: Lower if active liveness enforced and NFC check available; chip reading defeats printed forgeries
+    
+    socure:
+      liveness_risk: Behavioral analysis hard for mask to replicate; micro-expression detection difficult for static media
+      document_risk: Document checks implied but not deeply disclosed
+      combined_risk: Lower due to behavioral and micro-expression signals; mask very limited in this domain
+    
+    idology:
+      liveness_risk: Multi-layered data matching includes behavioral and geolocation signals
+      document_risk: Document verification + face matching; behavioral signals hard to spoof
+      combined_risk: Lower if behavioral and geo-signals are enforced; masks limited in behavioral domain
+
+notes:
+- Printed card defeat is likely if document verification relies on OCR and basic image checks
+- Mask defeat depends on: (1) active vs passive liveness, (2) 3D depth detection, (3) behavioral signals
+- Upload compression can degrade anti-spoofing models if not trained on compressed media
+- Highest risk: Passive-only liveness + basic document checks (Veriff as baseline)
+- Lowest risk: Active challenge + 3D validation + behavioral signals + NFC/chip (Onfido, AU10TIX if features enforced)

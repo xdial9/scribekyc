@@ -1,0 +1,49 @@
+vendor_id: vendor_veriff
+vendor_name: Veriff
+vendor_type: identity_verification
+retrieved_at: 2026-10-03
+
+public_resources:
+- https://www.veriff.com/product/liveness
+- https://devdocs.veriff.com/docs/biometric-liveness
+- https://developers.veriff.com/
+- https://www.veriff.com/trust-center
+- https://help.veriff.com/s/article/What-fraud-prevention-mechanisms-does-Veriff-have-in-place
+
+key_components:
+
+liveness_detection:
+  approach: passive
+  description: Users submit a selfie without performing specific actions. System analyzes biometric signals, face texture, and movements.
+  anti_spoofing: Claims ISO/IEC 30107-3 PAD compliance via iBeta testing
+  detects: masks, screens, deepfakes, photos, pre-recorded video
+
+document_verification:
+  ocr: Yes, extracts data from MRZ, visible fields, barcodes, chips
+  authenticity_checks: Computer vision for tampering, font mismatches, inconsistent data
+  template_matching: Yes, compares against genuine document templates
+  security_features: Claims to detect holograms, UV marks, microprinting via image analysis
+  face_matching: Compares document photo to liveness selfie
+
+device_and_session:
+  device_fingerprinting: Yes, collects device, browser, network signals
+  session_validation: Session-based via POST /v1/sessions endpoint
+  webhook_support: Yes, for real-time status updates
+  collected_data: Can upload additional attributes via /v1/sessions/{sessionId}/collected-data
+
+fraud_controls:
+  face_comparison: Machine and human review
+  background_detection: Video noise and background validation
+  hybrid_flagging: Machine-assisted with human oversight
+  pep_sanctions: Yes, watchlist and AIM checks
+  anomaly_detection: Yes, pattern and behavioral analysis
+
+compliance:
+  certifications: ISO/IEC 27001, SOC2 Type II, FIDO Document Authenticity, GDPR
+  standards: ISO/IEC 30107-3 PAD Level 2
+
+notes: 
+- Passive liveness is the primary approach (no active challenge prompts required)
+- Claims comprehensive anti-spoofing but specific robustness to degraded media not publicly detailed
+- Document verification includes hologram detection via image analysis
+- Multi-layer fraud detection but composition and weighting not disclosed

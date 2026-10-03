@@ -1,0 +1,64 @@
+vendor_id: vendor_au10tix
+vendor_name: AU10TIX
+vendor_type: identity_verification
+retrieved_at: 2026-10-03
+
+public_resources:
+- https://www.au10tix.com/solutions/document-verification/
+- https://cybersectools.com/tools/au10tix-identity-verification-platform
+- https://verificationatlas.com/providers/au10tix
+- https://github.com/api-evangelist/au10tix
+- https://securitystore.microsoft.com/solutions/au10tix1662380672540.au10tixverifiedid
+
+key_components:
+
+document_verification:
+  supported_documents: 5000+ types from 190+ countries
+  nfc_verification: Reads embedded chips in e-passports and smart IDs
+  forensic_tests: Over 180 forensic tests for forgery and tampering detection
+  data_extraction: Automated extraction and authentication
+  format_support: PDF scans and digital uploads
+  real_time_detection: Forgeries and tampering detected in real-time
+
+liveness_and_biometrics:
+  liveness_detection: Both passive and active approaches
+  passive_liveness: No user action needed
+  active_liveness: Challenge-based liveness
+  face_matching: Matches document photo to live selfie using NIST-rated algorithms
+  deepfake_detection: AI-based techniques to spot AI-generated and synthetic identities
+  synthetic_identity_detection: Identifies computer-generated identities
+
+anti_fraud_capabilities:
+  serial_fraud_monitor: Second layer of defense for fraud pattern monitoring
+  coordinated_attack_detection: Identifies repeated fraudulent attempts and organized fraud
+  consortium_validation: Shared intelligence for detecting repeat offenders
+  cross_validation: Emerging threat pattern detection
+  anomaly_detection: ML for document inconsistencies and suspicious behaviors
+  real_time_analysis: Continuous monitoring and risk assessment
+
+integration_and_deployment:
+  api_access: Single REST API for document verification, liveness, and fraud checks
+  integration: Web and mobile applications
+  deployment_options: Cloud and on-premises environments
+  privacy: End-to-end encryption (transit and at rest)
+  data_handling: Personal data not resold without permission
+
+compliance:
+  certifications: GDPR, ISO 27001, SOC 2
+  compliance: Stringent data retention and privacy rules
+  international_standards: Full compliance with global privacy and security frameworks
+
+industry_partnerships:
+  trusted_by: PayPal, Google, Uber, Airbnb
+  enterprise_partners: Microsoft Entra, Thomson Reuters
+  government_use: Government and public sector deployments
+  use_cases: Workforce onboarding and customer protection
+
+notes:
+- Most comprehensive document support (5000+ types, 190+ countries)
+- NFC chip reading adds direct authenticity validation
+- Both passive and active liveness options
+- Strong emphasis on synthetic and deepfake detection
+- Serial fraud monitoring and consortium intelligence
+- Microsoft and Thomson Reuters partnerships suggest enterprise-grade
+- API-first approach with transparent integration

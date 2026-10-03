@@ -1,0 +1,54 @@
+vendor_id: vendor_idology
+vendor_name: IDology (ExpectID Platform)
+vendor_type: identity_verification
+retrieved_at: 2026-10-03
+
+public_resources:
+- https://apitracker.io/a/idology
+- https://learn.microsoft.com/en-us/azure/active-directory-b2c/partner-idology
+- https://cybersecurity-excellence-awards.com/candidates/breakthrough-precision-idologys-expectid-identity-verification-and-fraud-prevention-platform/
+
+key_components:
+
+core_platform:
+  name: ExpectID
+  architecture: Cloud-based, plug-and-play
+  integration_modes: API, web, mobile, middleware
+  deployment: RESTful APIs, integrates with Azure AD B2C and other major platforms
+
+verification_methods:
+  multi_layered_data_matching: Leverages thousands of data sources
+  pii_verification: Name, address, SSN, etc.
+  cross_reference: Location, device, behavioral data
+  configurable_attributes: Nearly infinite configurations for industry-specific risks
+  biometric_and_document: Document authenticity + biometric (selfie/liveness)
+
+document_verification:
+  document_types: Government-issued IDs, passports
+  authenticity: Scanning and verification
+  face_matching: Ensures ID matches real-time capture
+
+fraud_controls:
+  real_time_analysis: Identifies and blocks synthetic and stolen identities
+  risk_scoring: Behavioral/geolocation analysis
+  device_fingerprinting: Device integrity validation
+  consortium_network: Real-time fraud intelligence and pattern sharing
+  rules_engine: Custom rules, point-and-click configuration for rapid adaptation
+  closed_loop_feedback: Analyzes outcomes for continuous improvement
+  step_up_authentication: Adaptive risk-based auth with additional verification
+  synthetic_identity_detection: Identifies fraudulent identity construction
+
+analytics:
+  dashboards: Insight into verification outcomes, fraud trends, behavioral patterns
+  audit_support: Compliance reporting, audit logs
+
+compliance:
+  standards: KYC/AML ready, BSA/AML, PCI, GDPR
+  configurable: Adjust risk models and rules without IT resources
+
+notes:
+- Emphasizes multi-layered data matching and consortium fraud intelligence
+- Flexible configuration for rapid adaptation to new fraud vectors
+- Integration with major cloud platforms (Azure AD B2C)
+- Rules engine suggests some configurability but limits not publicly clear
+- Full technical details available through direct vendor engagement

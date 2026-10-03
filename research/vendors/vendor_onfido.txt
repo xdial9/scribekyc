@@ -1,0 +1,54 @@
+vendor_id: vendor_onfido
+vendor_name: Onfido
+vendor_type: identity_verification
+retrieved_at: 2026-10-03
+
+public_resources:
+- https://documentation.onfido.com/identity-verification/identity-reports/liveness-report/
+- https://onfido.com/resources/whitepapers/
+- iBeta PAD Level 2 certification
+
+key_components:
+
+liveness_detection:
+  active_liveness: Yes, challenge-response (blink, head turn, speak, follow object)
+  passive_liveness: Yes, no user action required; analyzes texture, reflection, depth
+  challenge_response: Unpredictable actions that static media cannot replicate
+  3d_face_mapping: Reconstructs 3D face model from video to detect 2D presentations
+  anti_spoofing_techniques:
+    - Texture and lighting analysis
+    - Motion analysis for natural vs scripted movements
+    - Reflection and glare detection
+    - AI/ML models trained on diverse spoof attempts
+  anti_spoofing: iBeta PAD Level 2 certified
+  detects: photos, masks, deepfakes, screen replays, printed images
+
+document_verification:
+  ocr: Yes, scans and reads text against templates
+  template_compliance: Verifies document layout, hologram position, MRZ codes, fonts
+  face_match: Compares document photo to real-time selfie/liveness
+  advanced_forensics:
+    - Microprint and security feature detection
+    - Photo replacement detection (tampering at edges, shadows, color tones)
+    - Compression artifacts and layering analysis
+    - Barcode parsing and validation
+  document_liveness: May require tilting or moving document; analyzes hologram interaction
+
+device_and_session:
+  integration: Web, mobile SDKs
+  session_management: Standard verification session flow
+
+fraud_controls:
+  continuous_updates: Feedback loops from global network for model updates
+  new_attack_vectors: Regular updates to address emerging spoofing techniques
+
+compliance:
+  certifications: iBeta PAD Level 2 (independent testing)
+  tested_against: photos, masks, deepfakes, video replays, other spoofing attacks
+
+notes:
+- Strong emphasis on active challenge-response (harder to defeat than passive-only)
+- 3D face mapping adds layer of depth detection
+- Comprehensive anti-spoofing forensics on documents (microprint, security features)
+- Document liveness (movement of document) adds temporal validation
+- Does not disclose full-stack or code-level details but whitepapers available
