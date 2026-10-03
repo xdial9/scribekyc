@@ -1,0 +1,17 @@
+source_id: source_008
+source_name: Public identity fraud and document manipulation advisory
+source_type: advisory
+url: https://example.com/public-identity-fraud-advisory
+retrieved_at: 2026-10-03
+summary: Public advisory guidance explains that identity fraud efforts frequently exploit weak document verification, reused media, and manipulated identity assets in digital onboarding and customer acquisition workflows.
+
+relevance:
+- entity_id: entity_lender_02
+  component_type: kyc
+  notes: Relevant to document authenticity and identity assurance in KYC and onboarding systems.
+
+observations:
+- observation: Synthetic or manipulated identity assets remain a common vector in digital fraud attempts.
+  confidence: high
+- observation: Fraud prevention depends on image integrity checks, document validation, and escalation workflows.
+  confidence: high

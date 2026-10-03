@@ -1,0 +1,38 @@
+component_type: biometrics
+component_name: liveness_check_system
+version: unknown
+category_summary: Liveness check systems validate that a user is physically present and responding in real time rather than presenting a static or synthetic asset.
+
+public_risk_themes:
+- risk_type: liveness_bypass
+  severity: high
+  description: Static media, replays, and deepfake presentations can bypass weak or passive liveness mechanisms.
+  public_evidence:
+    - source_type: research
+      url: https://example.com/public-anti-spoofing-research
+      notes: Public security research highlights the ease with which simple liveness systems can be defeated by synthetic media.
+- risk_type: synthetic_media
+  severity: high
+  description: AI-generated faces and manipulated video can fool weak biometric checks if the workflow relies on low-friction or passive verification.
+  public_evidence:
+    - source_type: research
+      url: https://example.com/public-deepfake-research
+      notes: Deepfake and synthetic media research repeatedly identifies biometric verification as a high-risk target.
+
+common_exploit_patterns:
+- exploit_pattern: video_replay_attack
+  description: Attackers present a pre-recorded video or replayed capture to satisfy the liveness challenge.
+  public_evidence: Public anti-spoofing and deepfake research.
+- exploit_pattern: face_swap_or_generation
+  description: Attackers use AI-generated or manipulated faces to pass a weak identity check.
+  public_evidence: Public deepfake and liveness research.
+
+mitigations:
+- mitigation: challenge_response_validation
+  notes: Use randomized, active challenge responses that require real-time user interaction during the verification flow.
+- mitigation: anti_spoofing_scoring
+  notes: Score and reject low-quality or suspicious image or video submissions before acceptance.
+- mitigation: escalation_on_failure
+  notes: Escalate suspicious attempts to manual review or a second authentication factor.
+
+confidence_level: medium

@@ -1,0 +1,43 @@
+entity_id: entity_lender_03
+entity_type: fintech
+market_segment: consumer lending
+country: unknown
+public_summary: A public-facing consumer lending entity with digital onboarding and automated risk review. Public materials point to digital identity verification, onboarding controls, and AI-assisted underwriting patterns common in consumer credit platforms.
+public_stack_summary: Public evidence suggests a stack combining digital onboarding, identity verification, document checks, and automated fraud / risk review.
+confidence_level: medium
+updated_at: 2026-10-03
+
+public_sources:
+- source_name: public job postings
+  source_type: job_posting
+  url: https://example.com/public-lending-job-posting
+  notes: Public roles reference onboarding, identity verification, fraud controls, and underwriting pipelines.
+- source_name: public product review
+  source_type: blog
+  url: https://example.com/public-product-overview
+  notes: Public product materials describe digital application and automated decisioning for consumer lending.
+
+observed_components:
+- component_type: onboarding
+  vendor_or_category: digital_application_flow
+  version: unknown
+  evidence: Public product materials describe digital application intake and onboarding.
+  confidence: medium
+- component_type: idv
+  vendor_or_category: identity_verification_vendor
+  version: unknown
+  evidence: Public roles and product materials suggest identity verification during onboarding.
+  confidence: medium
+- component_type: risk_engine
+  vendor_or_category: underwriting_risk_model
+  version: unknown
+  evidence: Public marketing materials highlight automated underwriting and risk review.
+  confidence: medium
+
+public_risk_notes:
+- risk_type: liveness_bypass
+  notes: Identity verification and onboarding flows remain vulnerable to synthetic media and replayed content if challenge strength is low.
+- risk_type: document_fraud
+  notes: Document-based identity assurance remains susceptible to manipulated files and synthetic documentation.
+- risk_type: session_abuse
+  notes: Verification and onboarding workflows can be abused when session state and challenge sequencing are weak.

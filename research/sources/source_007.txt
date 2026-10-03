@@ -1,0 +1,17 @@
+source_id: source_007
+source_name: Public identity verification anti-spoofing research
+source_type: research
+url: https://example.com/public-anti-spoofing-research
+retrieved_at: 2026-10-03
+summary: Public anti-spoofing research discusses the risk that synthetic media, replayed videos, and manipulated images can defeat weak biometric verification systems. The research emphasizes challenge-response flows, image quality checks, and anomaly scoring as protective controls.
+
+relevance:
+- entity_id: entity_lender_01
+  component_type: biometrics
+  notes: Relevant to liveness and anti-spoofing controls in digital onboarding and customer verification.
+
+observations:
+- observation: Passive or poorly implemented biometric checks remain vulnerable to presentation attacks.
+  confidence: high
+- observation: Active challenge-response systems and quality checks significantly reduce spoofing success.
+  confidence: high

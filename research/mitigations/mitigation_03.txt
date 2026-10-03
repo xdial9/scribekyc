@@ -1,0 +1,26 @@
+mitigation_category: idv_hardening
+control_name: behavioral_and_device_signals
+summary: Combine identity verification with behavioral and device telemetry to reduce fraud exposure and improve confidence in a live user session.
+
+why_it_matters:
+- Device and behavioral signals add context beyond static identity documents or a single biometric check.
+- Public fraud guidance recommends layered controls because single signals are easier to spoof or replay.
+
+related_risks:
+- synthetic_media
+- liveness_bypass
+- session_abuse
+- document_fraud
+
+public_sources:
+- source_type: advisory
+  url: https://example.com/public-identity-fraud-advisory
+  notes: Public guidance notes that a single verification signal is insufficient in the face of synthetic and manipulated media.
+- source_type: research
+  url: https://example.com/public-anti-spoofing-research
+  notes: Research emphasizes layered controls and context-based analysis to reduce spoofing and abuse.
+
+implementation_notes:
+- Combine device signals, session state checks, and behavioral heuristics with biometric or KYC validation.
+- Review anomalies or suspicious sessions with secondary escalation.
+- Tune thresholds to reduce false positives while preserving security posture.
