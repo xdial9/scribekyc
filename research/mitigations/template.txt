@@ -1,0 +1,23 @@
+# Mitigation template
+
+mitigation_category: <idv_hardening | kyc_best_practices | anti_fraud_controls | session_security | document_verification>
+control_name: <control name>
+summary: <brief description>
+
+why_it_matters:
+- <why this matters in public IDV / KYC workflows>
+
+related_risks:
+- <liveness_bypass>
+- <document_fraud>
+- <synthetic_media>
+- <session_abuse>
+
+public_sources:
+- source_type: <vendor | advisory | framework | research>
+  url: <public URL>
+  notes: <what the source says>
+
+implementation_notes:
+- <practical guidance>
+
