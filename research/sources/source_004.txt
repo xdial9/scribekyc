@@ -1,0 +1,17 @@
+source_id: source_004
+source_name: Public anti-spoofing and liveness guidance
+source_type: advisory
+url: https://example.com/public-anti-spoofing-guidance
+retrieved_at: 2026-10-03
+summary: Public anti-fraud guidance recommends active liveness prompts, challenge-response validation, and quality controls to minimize spoofing, replay, and synthetic media failure modes.
+
+relevance:
+- entity_id: entity_lender_01
+  component_type: idv
+  notes: Relevant to public best practices in identity verification hardening.
+
+observations:
+- observation: Active challenge flows are more resistant to replayed or static media attacks.
+  confidence: high
+- observation: Multi-layer controls are more effective than single biometric checks alone.
+  confidence: high

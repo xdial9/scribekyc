@@ -1,0 +1,17 @@
+source_id: source_003
+source_name: Public document fraud and KYC synthesis overview
+source_type: research
+url: https://example.com/public-document-fraud-research
+retrieved_at: 2026-10-03
+summary: Public research and advisory content highlight document fraud as a major risk in KYC and onboarding. Examples include altered images, synthetic documents, recycled screens, and manipulated identity data across digital verification flows.
+
+relevance:
+- entity_id: entity_lender_01
+  component_type: kyc
+  notes: Relevant to document verification and KYC review controls in consumer lending onboarding.
+
+observations:
+- observation: Document fraud often exploits weak image validation and lack of authenticity checks.
+  confidence: high
+- observation: Human review, document authenticity validation, and multi-factor identity review reduce false acceptance.
+  confidence: high

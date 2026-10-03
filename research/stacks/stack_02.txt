@@ -1,0 +1,50 @@
+entity_id: entity_lender_02
+stack_snapshot_date: 2026-10-03
+stack_summary: A second public-facing lending stack appears to use digital onboarding, identity verification, and automated fraud review. The stack likely includes document review, risk scoring, and user verification controls similar to common fintech patterns.
+
+components:
+- component_type: idv
+  vendor_or_category: identity_verification_vendor
+  version: unknown
+  assessment: inferred from public materials
+  evidence:
+    - source_type: job_posting
+      url: https://example.com/public-idv-role-posting
+      notes: Public postings reference identity verification, digital onboarding, and fraud controls.
+- component_type: kyc
+  vendor_or_category: kyc_vendor
+  version: unknown
+  assessment: inferred from public materials
+  evidence:
+    - source_type: blog
+      url: https://example.com/public-kyc-overview
+      notes: Public materials describe onboarding, KYC review, and compliance workflows.
+- component_type: document_verification
+  vendor_or_category: document_verification_vendor
+  version: unknown
+  assessment: inferred from public materials
+  evidence:
+    - source_type: blog
+      url: https://example.com/public-document-checks
+      notes: Public materials describe secure document capture and verification during onboarding.
+- component_type: risk_engine
+  vendor_or_category: fraud_risk_model
+  version: unknown
+  assessment: inferred from public materials
+  evidence:
+    - source_type: press_release
+      url: https://example.com/public-risk-automation
+      notes: Public announcements highlight automated fraud and risk review in digital onboarding.
+
+risk_associations:
+- risk_type: document_fraud
+  related_components: kyc, document_verification
+  public_notes: Document and KYC workflows remain vulnerable to manipulated images and synthetic identity materials.
+- risk_type: liveness_bypass
+  related_components: idv
+  public_notes: Identity verification controls need active anti-spoofing checks, especially in digital lending onboarding.
+- risk_type: synthetic_media
+  related_components: idv, document_verification
+  public_notes: Synthetic media presents a common public risk in identity and document assurance workflows.
+
+confidence_level: medium

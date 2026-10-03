@@ -1,0 +1,38 @@
+component_type: kyc
+component_name: document_verification_workflow
+version: unknown
+category_summary: Document verification workflows are used to validate identity inputs during onboarding, risk review, and underwriting processes.
+
+public_risk_themes:
+- risk_type: document_manipulation
+  severity: high
+  description: Identity documents can be altered, reused, or synthesized and still pass insufficient image or OCR checks.
+  public_evidence:
+    - source_type: research
+      url: https://example.com/public-document-fraud-research
+      notes: Public research consistently identifies manipulated or synthetic documents as a major KYC risk.
+- risk_type: synthetic_media
+  severity: medium
+  description: Identity assets, screenshots, and synthetic images can be used to mimic valid onboarding materials.
+  public_evidence:
+    - source_type: research
+      url: https://example.com/public-deepfake-research
+      notes: Public research on synthetic media describes the use of AI-generated faces and manipulated images in verification flows.
+
+common_exploit_patterns:
+- exploit_pattern: altered_document_upload
+  description: Fraudsters submit modified or manipulated identity document images to evade verification.
+  public_evidence: Public document fraud research and identity onboarding guidance.
+- exploit_pattern: reused_screen_capture
+  description: Existing identity materials or screenshots may be resubmitted in weak verification workflows.
+  public_evidence: Public KYC fraud patterns and document authenticity discussions.
+
+mitigations:
+- mitigation: document_authenticity_checks
+  notes: Validate security features, image integrity, and tamper indicators before accepting document uploads.
+- mitigation: secondary_review
+  notes: Promote suspicious verification attempts to a human or secondary review queue.
+- mitigation: multi_factor_identity_assurance
+  notes: Pair document review with liveness or additional identity signals to lower fraud risk.
+
+confidence_level: medium

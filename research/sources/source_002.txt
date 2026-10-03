@@ -1,0 +1,17 @@
+source_id: source_002
+source_name: Public deepfake and synthetic media overview
+source_type: research
+url: https://example.com/public-deepfake-research
+retrieved_at: 2026-10-03
+summary: Public research on deepfake and synthetic media discusses how AI-generated content can defeat weak identity verification and biometric prompts, particularly in passive or low-friction onboarding flows.
+
+relevance:
+- entity_id: entity_lender_01
+  component_type: biometrics
+  notes: Relevant to synthetic media and liveness risks in digital onboarding.
+
+observations:
+- observation: Deepfake content can bypass biometric controls if they rely on simple passive checks or weak anti-spoofing.
+  confidence: high
+- observation: Stronger flows rely on active challenge prompts, quality assessments, and anomaly scoring.
+  confidence: high
