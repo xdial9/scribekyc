@@ -1,1 +1,2 @@
-requests>=2.32.0
+# Flask web UI for the repo assistant
+Flask>=3.0.0
