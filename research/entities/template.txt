@@ -1,0 +1,28 @@
+# Entity template
+
+entity_id: <unique anonymized identifier>
+entity_type: <lender | fintech | issuer | platform>
+market_segment: <personal lending | BNPL | fintech | etc.>
+country: <optional>
+public_summary: <one paragraph summary based on public sources>
+public_stack_summary: <high-level summary of publicly observable components>
+confidence_level: <low | medium | high>
+updated_at: <YYYY-MM-DD>
+
+public_sources:
+- source_name: <public source name>
+  source_type: <job_posting | github | blog | sec | api_doc | press_release>
+  url: <public URL>
+  notes: <what this source indicates>
+
+observed_components:
+- component_type: <idv | kyc | biometric | risk_engine | auth | document_verification | api_gateway | db | etc.>
+  vendor_or_category: <vendor or generic category>
+  version: <version if observed>
+  evidence: <supporting public observation>
+  confidence: <low | medium | high>
+
+public_risk_notes:
+- risk_type: <liveness_bypass | synthetic_media | document_fraud | session_abuse | etc.>
+  notes: <public risk theme associated with this component>
+
