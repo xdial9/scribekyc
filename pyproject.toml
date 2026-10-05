@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "scribe-kyc"
+version = "0.1.0"
+description = "A local-first CLI assistant that searches your notes or code and answers questions grounded in your own files."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [{ name = "Jessie" }]
+keywords = ["notes", "search", "cli", "assistant", "local-first"]
+dependencies = ["requests>=2.32.0"]
+urls = { Homepage = "https://github.com/xjess5237-blip/scribekyc" }
+
+[project.scripts]
+scribe = "app:main"
+scribe-web = "scribe_web:main"
+
+[tool.setuptools]
+py-modules = ["app", "scribe_web"]

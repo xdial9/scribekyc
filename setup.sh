@@ -1,47 +1,41 @@
-#!/bin/bash
+#!/usr/bin/env bash
+#
+# Scribe setup — installs dependencies and the `scribe` command.
+#
+# Usage:
+#   chmod +x setup.sh
+#   ./setup.sh
+#
+set -euo pipefail
 
-# Scribe Installation Script
-# This script adds scribe to your PATH so you can run it from anywhere
+cd "$(dirname "$0")"
 
-set -e
-
-echo "🖊️  Setting up Scribe..."
-
-SCRIBE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-echo "Scribe directory: $SCRIBE_DIR"
-
-# Make the scribe executable
-chmod +x "$SCRIBE_DIR/scribe"
-
-# Detect shell config file
-if [[ -f "$HOME/.zshrc" ]]; then
-    SHELL_RC="$HOME/.zshrc"
-elif [[ -f "$HOME/.bashrc" ]]; then
-    SHELL_RC="$HOME/.bashrc"
-elif [[ -f "$HOME/.bash_profile" ]]; then
-    SHELL_RC="$HOME/.bash_profile"
+echo "→ Checking Python dependencies..."
+if python3 -c "import requests" 2>/dev/null; then
+    echo "  requests already installed — skipping."
 else
-    echo "⚠️  Could not find shell configuration file (.zshrc, .bashrc, or .bash_profile)"
-    echo "Please manually add this to your shell configuration:"
-    echo "export PATH=\"$SCRIBE_DIR:\$PATH\""
-    exit 1
+    echo "  installing requests..."
+    if ! python3 -m pip install -r requirements.txt 2>/dev/null; then
+        echo "  system pip is locked (PEP 668) — retrying with --break-system-packages..."
+        python3 -m pip install --break-system-packages -r requirements.txt \
+            || echo "  WARNING: could not install requests. Offline mode still works fine; only Ollama/OpenAI answers need it."
+    fi
 fi
 
-# Add to PATH if not already there
-if ! grep -q "export PATH=.*$SCRIBE_DIR" "$SHELL_RC"; then
-    echo "export PATH=\"$SCRIBE_DIR:\$PATH\"" >> "$SHELL_RC"
-    echo "✅ Added Scribe to PATH in $SHELL_RC"
-else
-    echo "✅ Scribe is already in PATH"
-fi
+echo "→ Installing the 'scribe' command..."
+BIN_DIR="$HOME/.local/bin"
+mkdir -p "$BIN_DIR"
+ln -sf "$(pwd)/app.py" "$BIN_DIR/scribe"
+chmod +x "$(pwd)/app.py" "$(pwd)/scribe_web.py"
 
 echo ""
-echo "📦 Installation complete!"
-echo ""
-echo "Next steps:"
-echo "1. Reload your shell: source $SHELL_RC"
-echo "2. Try it out: scribe ask 'what is this repo?'"
-echo "3. Interactive mode: scribe chat"
-echo "4. Web UI: python $SCRIBE_DIR/scribe_web.py"
-echo ""
-echo "Happy scribing! 🎉"
+echo "Done. 'scribe' is installed at $BIN_DIR/scribe"
+if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
+    echo ""
+    echo "Add this to your ~/.zshrc or ~/.bashrc so your shell finds it:"
+    echo "    export PATH=\"$BIN_DIR:\$PATH\""
+    echo ""
+    echo "Then reload your shell and try:  scribe --help"
+else
+    echo "Try it:  scribe --help"
+fi

@@ -1,38 +1,92 @@
 #!/usr/bin/env python3
+"""
+Scribe — a repo-grounded local assistant for the terminal.
+
+Point Scribe at any folder of notes or code, build a local index, then ask
+questions, search, summarize files, compare files, and chat — all offline by
+default, with optional Ollama/OpenAI-backed answers.
+
+Usage:
+    scribe --repo ~/notes index
+    scribe --repo ~/notes ask "how does auth work?"
+    scribe chat
+"""
 
 import argparse
 import json
 import os
 import re
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List, Optional
 
 try:
     import requests
-except Exception:  # pragma: no cover
+except Exception:  # pragma: no cover - offline mode works without requests
     requests = None
 
-ROOT = Path(__file__).resolve().parent
-INDEX_PATH = ROOT / ".assistant_index.json"
-MEMORY_PATH = ROOT / ".assistant_memory.json"
-SESSION_PATH = ROOT / ".assistant_sessions.json"
 
-FILE_EXTENSIONS = {".md", ".txt", ".csv", ".json", ".yaml", ".yml", ".py", ".js", ".ts", ".sh"}
-SKIP_DIRS = {".git", ".venv", "venv", "__pycache__", ".mypy_cache", ".pytest_cache", ".idea", "__MACOSX"}
+# ---------------------------------------------------------------------------
+# Repo targeting
+# ---------------------------------------------------------------------------
 
-SYNONYM_MAP = {
-    "idv": ["idv", "identity verification", "identity-verification", "kyc"],
-    "kyc": ["kyc", "identity verification", "identity-verification", "customer onboarding"],
-    "liveness": ["liveness", "facial liveness", "anti spoof", "spoofing", "face verification"],
-    "document": ["document", "passport", "driver license", "id document", "id card"],
-    "vendor": ["vendor", "provider", "company", "platform"],
-    "risk": ["risk", "threat", "fraud", "attack", "vulnerability"],
-    "compare": ["compare", "difference", "contrast"],
-    "summary": ["summary", "overview", "what is this"],
+APP_DIR = Path(__file__).resolve().parent
+
+INDEX_NAME = ".scribe_index.json"
+MEMORY_NAME = ".scribe_memory.json"
+SESSIONS_NAME = ".scribe_sessions.json"
+
+# Internal bookkeeping files (current + legacy names) are never indexed.
+INTERNAL_FILES = {
+    INDEX_NAME,
+    MEMORY_NAME,
+    SESSIONS_NAME,
+    ".assistant_index.json",
+    ".assistant_memory.json",
+    ".assistant_sessions.json",
 }
 
+# Default target: the folder you run the command from. Override with --repo.
+ROOT = Path.cwd()
+INDEX_PATH = ROOT / INDEX_NAME
+MEMORY_PATH = ROOT / MEMORY_NAME
+SESSION_PATH = ROOT / SESSIONS_NAME
+
+
+def set_repo_root(path: "str | Path") -> Path:
+    """Point Scribe at a different notes/code folder. Returns the root."""
+    global ROOT, INDEX_PATH, MEMORY_PATH, SESSION_PATH
+    ROOT = Path(path).expanduser().resolve()
+    INDEX_PATH = ROOT / INDEX_NAME
+    MEMORY_PATH = ROOT / MEMORY_NAME
+    SESSION_PATH = ROOT / SESSIONS_NAME
+    return ROOT
+
+
+FILE_EXTENSIONS = {
+    ".md", ".txt", ".csv", ".json", ".yaml", ".yml",
+    ".py", ".js", ".ts", ".sh",
+}
+SKIP_DIRS = {
+    ".git", ".venv", "venv", "__pycache__", ".mypy_cache",
+    ".pytest_cache", ".idea", "__MACOSX", "node_modules",
+}
+
+# Small generic synonym map for everyday dev/notes language.
+SYNONYM_MAP = {
+    "doc": ["doc", "docs", "documentation", "readme"],
+    "config": ["config", "configuration", "settings", "options", "preferences"],
+    "test": ["test", "tests", "testing"],
+    "install": ["install", "installation", "setup"],
+    "example": ["example", "examples", "sample"],
+    "error": ["error", "errors", "exception", "bug", "issue"],
+}
+
+
+# ---------------------------------------------------------------------------
+# Paths & file helpers
+# ---------------------------------------------------------------------------
 
 def normalize_path(raw: str) -> str:
     raw = raw.strip()
@@ -43,18 +97,33 @@ def normalize_path(raw: str) -> str:
     return raw.replace("\\", "/")
 
 
-def resolve_repo_path(raw: str) -> Path:
+def resolve_repo_path(raw: str) -> Optional[Path]:
+    """Resolve a user-supplied path inside the repo.
+
+    Returns None when the path is empty or escapes the repo root.
+    """
     rel = normalize_path(raw)
     if not rel or rel in {".", "/"}:
         return ROOT
-    return (ROOT / rel).resolve()
+    target = (ROOT / rel).resolve()
+    try:
+        target.relative_to(ROOT)
+    except ValueError:
+        return None
+    return target
 
 
 def iter_repo_files(root: Path):
+    """Yield indexable files under root, skipping internals and junk dirs."""
     for path in root.rglob("*"):
-        if path.is_file() and not any(part in SKIP_DIRS for part in path.parts):
-            if path.suffix.lower() in FILE_EXTENSIONS or path.name.lower().endswith(".md"):
-                yield path
+        if not path.is_file():
+            continue
+        if path.name in INTERNAL_FILES:
+            continue
+        if any(part in SKIP_DIRS for part in path.parts):
+            continue
+        if path.suffix.lower() in FILE_EXTENSIONS or path.name.lower().endswith(".md"):
+            yield path
 
 
 def read_text(path: Path) -> str:
@@ -66,6 +135,14 @@ def read_text(path: Path) -> str:
         except Exception:
             return ""
 
+
+def now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+# ---------------------------------------------------------------------------
+# Index
+# ---------------------------------------------------------------------------
 
 def chunk_text(text: str, max_chars: int = 900) -> List[str]:
     cleaned = re.sub(r"\r\n?", "\n", text).strip()
@@ -87,7 +164,7 @@ def chunk_text(text: str, max_chars: int = 900) -> List[str]:
                 chunks.append(current)
             if len(para) > max_chars:
                 for i in range(0, len(para), max_chars):
-                    piece = para[i : i + max_chars].strip()
+                    piece = para[i:i + max_chars].strip()
                     if piece:
                         chunks.append(piece)
                 current = ""
@@ -97,7 +174,7 @@ def chunk_text(text: str, max_chars: int = 900) -> List[str]:
     if current:
         chunks.append(current)
 
-    return [c for c in chunks if len(c.strip()) > 60]
+    return [c for c in chunks if c.strip()]
 
 
 def build_index(root: Path) -> Dict[str, Any]:
@@ -108,8 +185,8 @@ def build_index(root: Path) -> Dict[str, Any]:
         for chunk in chunk_text(text):
             chunks.append({"path": rel, "text": chunk, "source": rel})
 
-    payload = {"generated_at": datetime.utcnow().isoformat() + "Z", "chunks": chunks}
-    INDEX_PATH.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    payload = {"generated_at": now_iso(), "chunks": chunks}
+    (root / INDEX_NAME).write_text(json.dumps(payload, indent=2), encoding="utf-8")
     return payload
 
 
@@ -121,6 +198,10 @@ def load_index(force_refresh: bool = False) -> Dict[str, Any]:
     except Exception:
         return build_index(ROOT)
 
+
+# ---------------------------------------------------------------------------
+# Memory & sessions
+# ---------------------------------------------------------------------------
 
 def load_memory() -> Dict[str, Any]:
     if MEMORY_PATH.exists():
@@ -141,11 +222,9 @@ def append_memory(question: str, answer: str) -> None:
     history.append({
         "question": question,
         "answer": answer[:2000],
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": now_iso(),
     })
-    if len(history) > 30:
-        history = history[-30:]
-    data["history"] = history
+    data["history"] = history[-30:]
     save_memory(data)
 
 
@@ -200,24 +279,27 @@ def append_session_turn(session_id: str, question: str, answer: str) -> None:
     history.append({
         "question": question,
         "answer": answer[:2000],
-        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "timestamp": now_iso(),
     })
-    if len(history) > 30:
-        history = history[-30:]
-    sessions[session_id] = history
+    sessions[session_id] = history[-30:]
     save_sessions(sessions)
 
 
+# ---------------------------------------------------------------------------
+# Ranking
+# ---------------------------------------------------------------------------
+
 def expand_query_tokens(question: str) -> List[str]:
     tokens = re.findall(r"[a-zA-Z0-9_\-]+", question.lower())
-    expanded = []
+    expanded: List[str] = []
     for token in tokens:
         expanded.append(token)
         for key, variants in SYNONYM_MAP.items():
-            if token in key or key in token:
-                expanded.extend(variants)
-            elif token in variants:
+            if token == key or token in variants:
                 expanded.append(key)
+                expanded.extend(variants)
+            elif token in key or key in token:
+                expanded.extend(variants)
     return [t for t in expanded if len(t) > 2]
 
 
@@ -232,12 +314,7 @@ def score_chunk(question: str, chunk: Dict[str, Any]) -> float:
     path_matches = sum(3 for token in tokens if token in chunk.get("path", "").lower())
     text_matches = sum(2 for token in tokens if token in text)
     unique_hits = sum(1 for token in set(tokens) if token in text)
-    score = exact_phrase * 20 + path_matches + text_matches + unique_hits * 1.5
-
-    if any(token in text for token in ["vendor", "liveness", "kyc", "document", "risk"]):
-        score += 1.0
-
-    return score
+    return exact_phrase * 20 + path_matches + text_matches + unique_hits * 1.5
 
 
 def rank_chunks(question: str, chunks: List[Dict[str, Any]], limit: int = 6) -> List[Dict[str, Any]]:
@@ -265,34 +342,35 @@ def build_context(question: str, chunks: List[Dict[str, Any]], limit: int = 5) -
 
 
 def build_repo_overview() -> str:
-    files = []
-    for path in sorted(iter_repo_files(ROOT)):
-        rel = path.relative_to(ROOT).as_posix()
-        files.append(rel)
+    files = [p.relative_to(ROOT).as_posix() for p in sorted(iter_repo_files(ROOT))]
 
-    summary_lines = [
-        "Project overview:",
-        "- This repo contains a local AI assistant, a research corpus, and review templates.",
-        "- The main implementation is in assistant_cli.py and app.py.",
-        "- The vendor research sits under research/ and docs/.",
-        "",
-        "Key files:",
+    ext_counts: Dict[str, int] = {}
+    for f in files:
+        ext = Path(f).suffix.lower() or "(no extension)"
+        ext_counts[ext] = ext_counts.get(ext, 0) + 1
+    top_exts = sorted(ext_counts.items(), key=lambda kv: kv[1], reverse=True)[:6]
+
+    lines = [
+        "Scribe project overview:",
+        f"- Target folder: {ROOT}",
+        f"- {len(files)} indexed files",
     ]
-
-    for f in files[:80]:
-        summary_lines.append(f"- {f}")
-
-    if len(files) > 80:
-        summary_lines.append(f"... and {len(files) - 80} more files")
-
-    summary_lines.extend([
+    if top_exts:
+        lines.append("- File types: " + ", ".join(f"{ext} ({n})" for ext, n in top_exts))
+    lines.append("")
+    lines.append("Key files:")
+    for f in files[:40]:
+        lines.append(f"- {f}")
+    if len(files) > 40:
+        lines.append(f"... and {len(files) - 40} more files")
+    lines.extend([
         "",
-        "Interpretation:",
-        "- This repo is organized as a local knowledge base for project notes, vendor research, and structured analysis.",
-        "- The assistant is designed to answer grounded questions from local files instead of external internet data.",
-        "- The web app is a simple interface for the same repository-aware workflow.",
+        "Notes:",
+        "- Scribe answers from these local files only — nothing leaves your machine",
+        "  unless you configure Ollama or OpenAI for model-backed answers.",
+        "- Run `index` again after adding or changing files.",
     ])
-    return "\n".join(summary_lines)
+    return "\n".join(lines)
 
 
 def offline_answer(question: str, chunks: List[Dict[str, Any]], session_context: str = "") -> str:
@@ -309,6 +387,10 @@ def offline_answer(question: str, chunks: List[Dict[str, Any]], session_context:
         "This answer is grounded only in the files currently in the repo."
     )
 
+
+# ---------------------------------------------------------------------------
+# Optional model backends
+# ---------------------------------------------------------------------------
 
 def try_ollama(question: str, context: str) -> str:
     if not requests:
@@ -327,10 +409,10 @@ def try_ollama(question: str, context: str) -> str:
     }
 
     try:
-        r = requests.post(url, json=payload, timeout=25)
+        r = requests.post(url, json=payload, timeout=60)
         if r.status_code == 200:
             data = r.json()
-            if isinstance(data, dict) and "response" in data:
+            if isinstance(data, dict) and isinstance(data.get("response"), str):
                 return data["response"].strip()
     except Exception:
         pass
@@ -366,17 +448,20 @@ def try_openai(question: str, context: str) -> str:
     }
 
     try:
-        r = requests.post("https://api.openai.com/v1/responses", headers=headers, json=payload, timeout=30)
+        r = requests.post("https://api.openai.com/v1/responses", headers=headers, json=payload, timeout=60)
         if r.status_code == 200:
             data = r.json()
-            output = data.get("output") or []
             texts = []
-            for item in output:
-                if isinstance(item, dict):
-                    content = item.get("content") or []
-                    for c in content:
-                        if isinstance(c, dict) and isinstance(c.get("text"), str):
-                            texts.append(c["text"])
+            for item in data.get("output") or []:
+                if not isinstance(item, dict):
+                    continue
+                if item.get("type") != "message":
+                    continue
+                for c in item.get("content") or []:
+                    if (isinstance(c, dict)
+                            and c.get("type") == "output_text"
+                            and isinstance(c.get("text"), str)):
+                        texts.append(c["text"])
             if texts:
                 return "\n".join(texts).strip()
     except Exception:
@@ -394,6 +479,9 @@ def answer_question(question: str, session_id: str = "default", force_refresh: b
 
     state = load_index(force_refresh)
     chunks = state.get("chunks", [])
+    if not chunks:
+        return "The index is empty — no readable files found under " + str(ROOT)
+
     context = build_context(normalized, chunks, limit=6)
 
     session_context = get_session_context(session_id, max_turns=5)
@@ -413,8 +501,14 @@ def answer_question(question: str, session_id: str = "default", force_refresh: b
     return offline_answer(normalized, chunks, session_context=session_context)
 
 
+# ---------------------------------------------------------------------------
+# Summarize / search / compare / tree
+# ---------------------------------------------------------------------------
+
 def summarize_file(path: str) -> str:
     target = resolve_repo_path(path)
+    if target is None:
+        return f"Path escapes the repo: {path}"
     if not target.exists():
         return f"File not found: {path}"
     if target.is_dir():
@@ -431,14 +525,21 @@ def summarize_file(path: str) -> str:
 
 def summarize_directory(path: str) -> str:
     target = resolve_repo_path(path)
+    if target is None:
+        return f"Path escapes the repo: {path}"
     if not target.exists() or not target.is_dir():
         return f"Directory not found: {path}"
 
     files = []
     for p in sorted(target.rglob("*")):
-        if p.is_file() and not any(part in SKIP_DIRS for part in p.parts):
-            if p.suffix.lower() in FILE_EXTENSIONS or p.name.lower().endswith(".md"):
-                files.append(p.relative_to(ROOT).as_posix())
+        if not p.is_file():
+            continue
+        if p.name in INTERNAL_FILES:
+            continue
+        if any(part in SKIP_DIRS for part in p.parts):
+            continue
+        if p.suffix.lower() in FILE_EXTENSIONS or p.name.lower().endswith(".md"):
+            files.append(p.relative_to(ROOT).as_posix())
 
     if not files:
         return f"No readable files found in: {path}"
@@ -468,7 +569,16 @@ def search_repo(term: str) -> str:
         return f"No matches for: {term}"
 
     output = [f"Search results for '{term}':"]
-    for item in matches[:12]:
+    seen = set()
+    shown = 0
+    for item in matches:
+        if item["path"] in seen:
+            continue
+        seen.add(item["path"])
+        shown += 1
+        if shown > 12:
+            output.append(f"... and more matches across {len(seen)} files")
+            break
         output.append(f"- {item['path']}")
         snippet = item["text"]
         if len(snippet) > 220:
@@ -478,8 +588,10 @@ def search_repo(term: str) -> str:
 
 
 def compare_files(file_a: str, file_b: str) -> str:
-    def load_terms(path: str) -> Dict[str, int]:
-        p = resolve_repo_path(path)
+    def load_terms(raw: str) -> Optional[Dict[str, int]]:
+        p = resolve_repo_path(raw)
+        if p is None or not p.is_file():
+            return None
         text = read_text(p)
         words = re.findall(r"[a-zA-Z0-9_]+", text.lower())
         counts: Dict[str, int] = {}
@@ -491,10 +603,17 @@ def compare_files(file_a: str, file_b: str) -> str:
 
     a_counts = load_terms(file_a)
     b_counts = load_terms(file_b)
+    if a_counts is None:
+        return f"File not found: {file_a}"
+    if b_counts is None:
+        return f"File not found: {file_b}"
 
-    common = sorted(set(a_counts).intersection(b_counts), key=lambda w: (a_counts[w] + b_counts[w]), reverse=True)[:10]
-    unique_a = sorted(set(a_counts) - set(b_counts), key=lambda w: a_counts[w], reverse=True)[:10]
-    unique_b = sorted(set(b_counts) - set(a_counts), key=lambda w: b_counts[w], reverse=True)[:10]
+    common = sorted(set(a_counts) & set(b_counts),
+                    key=lambda w: (a_counts[w] + b_counts[w]), reverse=True)[:10]
+    unique_a = sorted(set(a_counts) - set(b_counts),
+                      key=lambda w: a_counts[w], reverse=True)[:10]
+    unique_b = sorted(set(b_counts) - set(a_counts),
+                      key=lambda w: b_counts[w], reverse=True)[:10]
 
     summary = [f"Comparison: {file_a} vs {file_b}"]
     summary.append(f"Common significant terms: {', '.join(common) if common else 'none'}")
@@ -505,22 +624,21 @@ def compare_files(file_a: str, file_b: str) -> str:
 
 def get_folder_tree(base: str = ".", max_depth: int = 2) -> List[Dict[str, Any]]:
     root = resolve_repo_path(base)
-    if not root.exists() or not root.is_dir():
+    if root is None or not root.exists() or not root.is_dir():
         return []
 
-    def walk(directory: Path, depth: int = 0):
-        if depth > max_depth:
-            return []
-        items = []
+    def walk(directory: Path, depth: int) -> List[Dict[str, Any]]:
+        items: List[Dict[str, Any]] = []
         for child in sorted(directory.iterdir(), key=lambda p: (not p.is_dir(), p.name.lower())):
-            if child.name in SKIP_DIRS:
+            if child.name in SKIP_DIRS or child.name in INTERNAL_FILES:
                 continue
             if child.is_dir():
+                children = walk(child, depth + 1) if depth < max_depth else []
                 items.append({
                     "name": child.name,
                     "path": child.relative_to(ROOT).as_posix(),
                     "type": "dir",
-                    "children": walk(child, depth + 1),
+                    "children": children,
                 })
             else:
                 if child.suffix.lower() in FILE_EXTENSIONS or child.name.lower().endswith(".md"):
@@ -534,12 +652,16 @@ def get_folder_tree(base: str = ".", max_depth: int = 2) -> List[Dict[str, Any]]
     return walk(root, 0)
 
 
-def interactive_chat() -> None:
-    print("Local AI assistant ready. Commands: help, ask, search, summary, compare, list, overview, memory, exit")
-    session = "default"
+# ---------------------------------------------------------------------------
+# Interactive chat
+# ---------------------------------------------------------------------------
+
+def interactive_chat(session: str = "default") -> None:
+    print("Scribe ready. Commands: help, ask, search, summary, compare, list, overview, memory, session, exit")
+    print(f"Target folder: {ROOT}  |  Session: {session}")
     while True:
         try:
-            user_input = input("assistant> ").strip()
+            user_input = input("scribe> ").strip()
         except (EOFError, KeyboardInterrupt):
             print("\nGoodbye.")
             break
@@ -563,64 +685,70 @@ def interactive_chat() -> None:
             continue
 
         if user_input.lower().startswith("session "):
-            session = user_input.split(maxsplit=1)[1].strip() or "default"
+            session = user_input.split(None, 1)[1].strip() or "default"
             print(f"Session set to: {session}")
             continue
 
-        parts = user_input.split()
-        cmd = parts[0].lower()
+        cmd, _, arg = user_input.partition(" ")
+        cmd = cmd.lower()
+        arg = arg.strip()
 
         if cmd == "ask":
-            question = " ".join(parts[1:])
-            if not question:
+            if not arg:
                 print("Please provide a question.")
                 continue
-            answer = answer_question(question, session_id=session)
-            append_memory(question, answer)
-            append_session_turn(session, question, answer)
+            answer = answer_question(arg, session_id=session)
+            append_memory(arg, answer)
+            append_session_turn(session, arg, answer)
             print(answer)
             continue
 
         if cmd == "list":
-            target = parts[1] if len(parts) > 1 else "."
-            print(summarize_directory(target))
+            print(summarize_directory(arg or "."))
             continue
 
         if cmd == "search":
-            term = " ".join(parts[1:])
-            if not term:
+            if not arg:
                 print("Please provide a search term.")
                 continue
-            print(search_repo(term))
+            print(search_repo(arg))
             continue
 
         if cmd == "summary":
-            target = parts[1] if len(parts) > 1 else "."
-            if target == ".":
+            target = arg or "."
+            target_path = resolve_repo_path(target)
+            if target_path is None:
+                print(f"Path escapes the repo: {target}")
+            elif target_path.is_dir():
                 print(summarize_directory(target))
             else:
-                target_path = resolve_repo_path(target)
-                if target_path.is_dir():
-                    print(summarize_directory(target))
-                else:
-                    print(summarize_file(target))
+                print(summarize_file(target))
             continue
 
         if cmd == "compare":
-            if len(parts) < 3:
+            parts = arg.split()
+            if len(parts) < 2:
                 print("Usage: compare <file_a> <file_b>")
                 continue
-            print(compare_files(parts[1], parts[2]))
+            print(compare_files(parts[0], parts[1]))
             continue
 
+        # Bare text is treated as a question.
         answer = answer_question(user_input, session_id=session)
         append_memory(user_input, answer)
         append_session_turn(session, user_input, answer)
         print(answer)
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description="Local AI assistant for repo-grounded questions, search, summaries, overview, and session memory.")
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="scribe",
+        description="Scribe — a repo-grounded local assistant. Point it at any folder with --repo.",
+    )
     subparsers = parser.add_subparsers(dest="command")
 
     ask_parser = subparsers.add_parser("ask", help="Ask a repo-grounded question")
@@ -628,9 +756,9 @@ def main() -> int:
     ask_parser.add_argument("--session", default="default", help="Session name to keep chat memory")
 
     chat_parser = subparsers.add_parser("chat", help="Start interactive chat")
-    chat_parser.add_argument("--session", default="default", help="Default session name")
+    chat_parser.add_argument("--session", default="default", help="Session name for this chat")
 
-    index_parser = subparsers.add_parser("index", help="Rebuild the repo index")
+    subparsers.add_parser("index", help="Rebuild the repo index")
 
     search_parser = subparsers.add_parser("search", help="Search the repo")
     search_parser.add_argument("term", nargs="+", help="Search term")
@@ -645,13 +773,39 @@ def main() -> int:
     list_parser = subparsers.add_parser("list", help="List files in a directory")
     list_parser.add_argument("path", nargs="?", default=".", help="Directory path")
 
-    memory_parser = subparsers.add_parser("memory", help="Show recent chat history")
+    subparsers.add_parser("memory", help="Show recent chat history")
 
-    overview_parser = subparsers.add_parser("overview", help="Show repo overview")
+    subparsers.add_parser("overview", help="Show repo overview")
 
-    sessions_parser = subparsers.add_parser("sessions", help="List chat sessions")
+    subparsers.add_parser("sessions", help="List chat sessions")
 
-    args = parser.parse_args()
+    return parser
+
+
+def extract_repo_arg(argv: List[str]) -> tuple:
+    """Pull a leading --repo/-r PATH off argv so it works before the command.
+
+    Only the leading position is supported: `scribe --repo ~/notes ask "..."`.
+    """
+    args = list(argv)
+    repo = "."
+    while len(args) >= 2 and args[0] in ("--repo", "-r"):
+        repo = args[1]
+        args = args[2:]
+    return repo, args
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    raw = list(sys.argv[1:] if argv is None else argv)
+    repo_arg, rest = extract_repo_arg(raw)
+
+    parser = build_parser()
+    args = parser.parse_args(rest)
+
+    repo_root = set_repo_root(repo_arg)
+    if not repo_root.is_dir():
+        print(f"Repo not found: {repo_arg}", file=sys.stderr)
+        return 2
 
     if args.command == "ask":
         question = " ".join(args.question)
@@ -662,12 +816,12 @@ def main() -> int:
         return 0
 
     if args.command == "chat":
-        interactive_chat()
+        interactive_chat(session=args.session)
         return 0
 
     if args.command == "index":
         build_index(ROOT)
-        print(f"Rebuilt repo index at {INDEX_PATH}")
+        print(f"Indexed {ROOT} -> {INDEX_PATH.name}")
         return 0
 
     if args.command == "search":
@@ -676,14 +830,14 @@ def main() -> int:
 
     if args.command == "summary":
         target = args.path or "."
-        if target == ".":
+        target_path = resolve_repo_path(target)
+        if target_path is None:
+            print(f"Path escapes the repo: {target}")
+            return 2
+        if target_path.is_dir():
             print(summarize_directory(target))
         else:
-            target_path = resolve_repo_path(target)
-            if target_path.is_dir():
-                print(summarize_directory(target))
-            else:
-                print(summarize_file(target))
+            print(summarize_file(target))
         return 0
 
     if args.command == "compare":
@@ -707,10 +861,9 @@ def main() -> int:
         print("\n".join(f"- {s}" for s in sessions) if sessions else "No sessions yet.")
         return 0
 
-    print("No command supplied. Use 'ask', 'chat', 'index', 'search', 'summary', 'compare', 'list', 'memory', 'sessions', or 'overview'.")
+    parser.print_help()
     return 1
 
 
 if __name__ == "__main__":
     sys.exit(main())
-

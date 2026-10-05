@@ -1,340 +1,161 @@
 #!/usr/bin/env python3
+"""
+Scribe web UI — standard library only, no extra dependencies.
 
-from flask import Flask, render_template_string, request
+Usage:
+    python3 scribe_web.py [--repo PATH] [--port 5000]
 
-from scribe_cli import (
-    answer_question,
-    build_repo_overview,
-    get_folder_tree,
-    session_names,
-    append_session_turn,
-    show_memory,
-    read_text,
-    resolve_repo_path,
-)
-
-app = Flask(__name__)
-
-HTML = """
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scribe — Local Repo Assistant</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='75' font-size='75'>✍️</text></svg>" type="image/svg+xml">
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      html, body {
-        height: 100%;
-      }
-      body {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: linear-gradient(135deg, #0b1220 0%, #1a2a4e 100%);
-        color: #e5e7eb;
-        display: flex;
-        flex-direction: column;
-      }
-      .topbar {
-        background: rgba(17, 24, 39, 0.95);
-        border-bottom: 2px solid #2563eb;
-        padding: 16px 20px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-        display: flex;
-        align-items: center;
-        gap: 16px;
-      }
-      .topbar-brand {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 1.4em;
-        font-weight: bold;
-        background: linear-gradient(135deg, #60a5fa, #93c5fd);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        letter-spacing: 1px;
-      }
-      .topbar-brand-icon {
-        font-size: 1.3em;
-      }
-      .topbar-spacer {
-        flex: 1;
-      }
-      .topbar-tagline {
-        font-size: 0.8em;
-        color: #a0aec0;
-      }
-      .content {
-        flex: 1;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
-        width: 100%;
-        overflow-y: auto;
-      }
-      .header {
-        text-align: center;
-        margin-bottom: 24px;
-      }
-      .header h1 {
-        font-size: 2.5em;
-        margin: 0;
-        background: linear-gradient(135deg, #60a5fa, #93c5fd);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        letter-spacing: 2px;
-      }
-      .header p {
-        margin-top: 8px;
-        color: #a0aec0;
-        font-size: 0.9em;
-      }
-      .panel {
-        background: #111827;
-        border: 1px solid #374151;
-        border-radius: 12px;
-        padding: 18px;
-        margin-bottom: 18px;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-      }
-      .panel h2 {
-        font-size: 1.1em;
-        margin-bottom: 12px;
-        color: #60a5fa;
-      }
-      textarea, input, button, select {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 12px;
-        border-radius: 8px;
-        border: 1px solid #475569;
-        background: #020817;
-        color: #f8fafc;
-        margin-top: 8px;
-        font-family: 'Segoe UI', monospace;
-      }
-      button {
-        background: linear-gradient(135deg, #2563eb, #1d4ed8);
-        cursor: pointer;
-        font-weight: bold;
-        transition: all 0.3s ease;
-      }
-      button:hover {
-        background: linear-gradient(135deg, #1d4ed8, #1e40af);
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
-      }
-      pre {
-        white-space: pre-wrap;
-        background: #020817;
-        border: 1px solid #334155;
-        border-radius: 8px;
-        padding: 14px;
-        overflow: auto;
-        font-size: 0.85em;
-        max-height: 400px;
-      }
-      .layout {
-        display: grid;
-        grid-template-columns: 320px 1.5fr;
-        gap: 18px;
-      }
-      .tree {
-        list-style: none;
-        padding-left: 0;
-        margin: 0;
-      }
-      .tree li {
-        margin: 6px 0;
-      }
-      .tree a {
-        color: #60a5fa;
-        text-decoration: none;
-        transition: color 0.2s ease;
-      }
-      .tree a:hover {
-        color: #93c5fd;
-      }
-      .tree strong {
-        color: #e5e7eb;
-      }
-      .form-row {
-        display: flex;
-        gap: 12px;
-        align-items: flex-start;
-      }
-      .form-row > div {
-        flex: 1;
-      }
-      .form-row label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 4px;
-        font-size: 0.85em;
-      }
-      .badge {
-        display: inline-block;
-        background: #2563eb;
-        color: white;
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.75em;
-        font-weight: bold;
-        margin-right: 4px;
-      }
-      @media (max-width: 800px) {
-        .layout { grid-template-columns: 1fr; }
-        .form-row { flex-direction: column; }
-        .header h1 { font-size: 1.8em; }
-        .topbar { flex-direction: column; align-items: flex-start; gap: 8px; }
-        .topbar-spacer { display: none; }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="topbar">
-      <div class="topbar-brand">
-        <span class="topbar-brand-icon">✍️</span>
-        <span>SCRIBE</span>
-      </div>
-      <div class="topbar-spacer"></div>
-      <div class="topbar-tagline">Ask your notes anything</div>
-    </div>
-
-    <div class="content">
-      <div class="header">
-        <h1>✍️ SCRIBE</h1>
-        <p>Local repo-grounded assistant for project exploration and synthesis</p>
-      </div>
-
-      <div class="panel">
-        <form method="post" action="/ask">
-          <div class="form-row">
-            <div>
-              <label for="session">Session</label>
-              <select name="session" id="session">
-                {% for s in sessions %}
-                  <option value="{{ s }}" {% if s == active_session %}selected{% endif %}>{{ s }}</option>
-                {% endfor %}
-              </select>
-            </div>
-            <div>
-              <label for="folder">Folder</label>
-              <input name="folder" value="{{ active_folder }}" placeholder="." />
-            </div>
-          </div>
-          <label for="question">Ask Scribe</label>
-          <textarea name="question" rows="4" placeholder="What would you like to know about this project?"></textarea>
-          <button type="submit">✨ Get Scribe Answer</button>
-        </form>
-      </div>
-
-      <div class="layout">
-        <aside class="panel">
-          <h2>📂 Project Tree</h2>
-          <ul class="tree">
-            {% for item in folder_tree %}
-              <li>
-                {% if item.type == 'dir' %}
-                  <strong>{{ item.name }}/</strong>
-                  {% if item.children %}
-                    <ul class="tree">
-                      {% for child in item.children %}
-                        <li>
-                          {% if child.type == 'dir' %}
-                            <strong>{{ child.name }}/</strong>
-                          {% else %}
-                            <a href="/file/{{ child.path }}">{{ child.name }}</a>
-                          {% endif %}
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
-                {% else %}
-                  <a href="/file/{{ item.path }}">{{ item.name }}</a>
-                {% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        </aside>
-
-        <div>
-          <div class="panel">
-            <h2>💬 Scribe Response</h2>
-            <pre>{{ answer }}</pre>
-          </div>
-
-          <div class="panel">
-            <h2>📋 Project Overview</h2>
-            <pre>{{ overview }}</pre>
-          </div>
-
-          <div class="panel">
-            <h2>🧠 Session Memory</h2>
-            <pre>{{ memory }}</pre>
-          </div>
-        </div>
-      </div>
-    </div>
-  </body>
-</html>
+Then open http://localhost:5000 in a browser.
 """
 
+import argparse
+import html
+from http.server import BaseHTTPRequestHandler, HTTPServer
+from urllib.parse import urlparse, parse_qs
 
-def render_page(answer: str = "Ask Scribe a question to see the repo-grounded answer.", active_session: str = "default", active_folder: str = "."):
-    sessions = session_names() or ["default"]
-    if active_session not in sessions:
-        sessions = [active_session] + sessions
-    tree = get_folder_tree(active_folder)
-    return render_template_string(
-        HTML,
-        answer=answer,
-        overview=build_repo_overview(),
-        memory=show_memory(),
-        sessions=sessions,
-        active_session=active_session,
-        active_folder=active_folder,
-        folder_tree=tree,
-    )
+import app as scribe
 
 
-@app.get("/")
-def index():
-    return render_page()
+def esc(text: str) -> str:
+    return html.escape(text or "")
 
 
-@app.get("/file/<path:file_path>")
-def file_view(file_path: str):
-    path = resolve_repo_path(file_path)
-    if path.exists() and path.is_file():
-        content = read_text(path)
-        answer = f"📄 {file_path}\n\n" + (content[:5000] if content else "(empty file)")
-    else:
-        answer = f"📄 {file_path}\n\nFile not found or not readable."
-    return render_page(answer=answer, active_folder=".")
+def render_tree(nodes, depth=0) -> str:
+    parts = ["<ul>"]
+    for node in nodes:
+        if node["type"] == "dir":
+            parts.append(
+                f"<li>📁 {esc(node['name'])}"
+                + render_tree(node.get("children", []), depth + 1)
+                + "</li>"
+            )
+        else:
+            parts.append(
+                f"<li>📄 <a href=\"/view?p={esc(node['path'])}\">{esc(node['name'])}</a></li>"
+            )
+    parts.append("</ul>")
+    return "".join(parts)
 
 
-@app.post("/ask")
-def ask():
-    question = request.form.get("question", "").strip()
-    session = request.form.get("session", "default").strip() or "default"
-    folder = request.form.get("folder", ".").strip() or "."
+def layout(title: str, body: str) -> str:
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scribe — {esc(title)}</title>
+<style>
+body {{ font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; }}
+nav a {{ margin-right: 1rem; }}
+pre {{ background: #f4f4f4; padding: 1rem; overflow-x: auto; white-space: pre-wrap; }}
+ul {{ list-style: none; padding-left: 1.2rem; }}
+input[type=text] {{ width: 70%; padding: 0.4rem; }}
+button {{ padding: 0.4rem 0.8rem; }}
+.result {{ border-bottom: 1px solid #ddd; padding: 0.6rem 0; }}
+</style></head>
+<body>
+<nav><a href="/">🏠 Home</a> <a href="/askform">💬 Ask</a> <a href="/searchform">🔍 Search</a></nav>
+<h1>Scribe</h1>
+<p><small>Target folder: {esc(str(scribe.ROOT))}</small></p>
+{body}
+</body></html>"""
 
-    if not question:
-        answer = "Please enter a question."
-    else:
-        answer = answer_question(question, session_id=session)
-        append_session_turn(session, question, answer)
 
-    return render_page(answer=answer, active_session=session, active_folder=folder)
+def render_home() -> str:
+    tree = scribe.get_folder_tree(".", max_depth=3)
+    return "<h2>Files</h2>" + (render_tree(tree) if tree else "<p>No readable files found.</p>")
+
+
+def render_view(path: str) -> str:
+    target = scribe.resolve_repo_path(path)
+    if target is None or not target.is_file():
+        return f"<p>File not found: {esc(path)}</p>"
+    text = scribe.read_text(target)
+    return f"<h2>{esc(path)}</h2><pre>{esc(text[:20000])}</pre>"
+
+
+def render_search_form() -> str:
+    return """<h2>Search</h2>
+<form action="/search" method="get">
+<input type="text" name="q" placeholder="search term" autofocus>
+<button type="submit">Search</button></form>"""
+
+
+def render_search(q: str) -> str:
+    if not q.strip():
+        return "<p>Enter a search term.</p>"
+    out = scribe.search_repo(q)
+    blocks = []
+    for line in out.splitlines():
+        if line.startswith("- "):
+            blocks.append(f"<div class='result'><strong>{esc(line[2:])}</strong>")
+        elif line.startswith("  "):
+            blocks.append(f"<br><small>{esc(line.strip())}</small></div>")
+        else:
+            blocks.append(f"<p>{esc(line)}</p>")
+    return f"<h2>Search: {esc(q)}</h2>" + "".join(blocks)
+
+
+def render_ask_form() -> str:
+    return """<h2>Ask</h2>
+<form action="/ask" method="get">
+<input type="text" name="q" placeholder="ask a question about the repo" autofocus>
+<button type="submit">Ask</button></form>"""
+
+
+def render_ask(q: str) -> str:
+    if not q.strip():
+        return "<p>Enter a question.</p>"
+    answer = scribe.answer_question(q)
+    return f"<h2>Q: {esc(q)}</h2><pre>{esc(answer)}</pre>"
+
+
+class Handler(BaseHTTPRequestHandler):
+    def _send(self, body: str) -> None:
+        data = layout("web", body).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def do_GET(self) -> None:
+        parsed = urlparse(self.path)
+        qs = parse_qs(parsed.query)
+        path = parsed.path
+        if path == "/view":
+            self._send(render_view(qs.get("p", [""])[0]))
+        elif path == "/search":
+            self._send(render_search(qs.get("q", [""])[0]))
+        elif path == "/searchform":
+            self._send(render_search_form())
+        elif path == "/ask":
+            self._send(render_ask(qs.get("q", [""])[0]))
+        elif path == "/askform":
+            self._send(render_ask_form())
+        else:
+            self._send(render_home())
+
+    def log_message(self, *args) -> None:  # keep the terminal quiet
+        pass
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Scribe web UI (stdlib only).")
+    parser.add_argument("--repo", "-r", default=".", help="Folder to browse/search")
+    parser.add_argument("--port", "-p", type=int, default=5000, help="Port to serve on")
+    args = parser.parse_args()
+
+    root = scribe.set_repo_root(args.repo)
+    if not root.is_dir():
+        print(f"Repo not found: {args.repo}")
+        raise SystemExit(2)
+
+    server = HTTPServer(("127.0.0.1", args.port), Handler)
+    print(f"Scribe web UI serving {root} at http://localhost:{args.port}")
+    print("Press Ctrl+C to stop.")
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        print("\nStopped.")
 
 
 if __name__ == "__main__":
-    print("🖊️  Scribe Web UI starting at http://localhost:5000")
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    main()
